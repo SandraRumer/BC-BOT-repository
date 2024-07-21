@@ -17,7 +17,7 @@
      
       
       Player.Description = `
-....... automated ServiceBot model "Dice gambler" 0.8.2 .......
+....... automated ServiceBot model "Dice gambler" 0.8.3 .......
       Dicing Game
       ===========
       Overview for COMMANDS: all commands starts with #
@@ -74,23 +74,14 @@
 Fork-Code available here: 
 https://github.com/SandraRumer/BC-BOT-repository
 Comment and suggestion thread on BC Discord: https://discord.com/channels/1264166408888258621/1264166916839444554
-
-
-      
       ` // end of description
       
-      TextSnippet  = `
-      --------------- Text snippets -----------
       ServerSend("AccountUpdate", { Description: Player.Description });
       ChatRoomCharacterUpdate(Player)
-      
-      
       
       //pose LegsClosed
       CharacterSetActivePose(Player,"LegsClosed",true)
       ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
-      
-      
       
       if (typeof watcherList === 'undefined') {
         resetWatcherList()
@@ -128,13 +119,11 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
           timeoutHandle = setTimeout(enterLeaveEvent,1*1000,SenderCharacter,msg)
         } else if ((msg.startsWith("ServerLeave")) || (msg.startsWith("ServerDisconnect")) || (msg.startsWith("ServerBan")) || (msg.startsWith("ServerKick"))) {
           if (SenderCharacter.MemberNumber in customerList) {
-            ServerSend("ChatRoomChat", { Content: "*" + SenderCharacter.Name + " left.", Type: "Emote", Target: customerList[SenderCharacter.MemberNumber].linkedTo} );
-            if (SenderCharacter.MemberNumber in game.playerDict) {delete game.playerDict[SenderCharacter.MemberNumber]}
-            if ( SenderCharacter.MemberNumber in customerList) {
-              delete customerList[SenderCharacter.MemberNumber]} 
-          
+      //if (SenderCharacter.MemberNumber in game.playerDict) {delete game.playerDict[SenderCharacter.MemberNumber]}
+      delete customerList[SenderCharacter.MemberNumber]
+    } 
             if ( SenderCharacter.MemberNumber in watcherList) {
-              delete watcherList[SenderCharacter.MemberNumber]} 
+      delete watcherList[SenderCharacter.MemberNumber]
           }
           if (game.rewardTarget == SenderCharacter.MemberNumber) {
             resetGame()
@@ -147,7 +136,7 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
            // ServerSend("ChatRoomChat", { Content: "***********GameInfo********************", Type: "Emote"});
            // ServerSend("ChatRoomChat", { Content: "Status: " + game.status + " Round: " + game.round , Type: "Emote"});
         playerCount  = game.playerCount()
-        status = game.status
+  var status = game.status
         if (status == "off" && playerCount > 0) {
           game.status = "playerSelection"
         }
@@ -255,8 +244,8 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
                 }
       
           if (msg.toLowerCase().includes("info")){
-            mess = `*--------------------` +
-      nl + `For Your Intrest,` + SenderCharacter.Name + `!`;
+      mess = "*--------------------" +
+      nl + "For Your Intrest," + SenderCharacter.Name + `!`;
             if  (SenderCharacter.MemberNumber in watcherList) {
         mess = mess + nl + `Punishment Points: ` + customerList[SenderCharacter.MemberNumber].punishmentPoints ;
             }
@@ -294,7 +283,7 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
             memorizeClothing(SenderCharacter)
             if ((SenderCharacter.MemberNumber in customerList)   && (game.status == "dicing"))
               {
-                  ServerSend("ChatRoomChat", { Content: "*You are playing and can't change be passive anymore", Type: "Emote", Target: SenderCharacter.MemberNumber});     
+            ServerSend("ChatRoomChat", { Content: "*You are playing and can't change to passive anymore", Type: "Emote", Target: SenderCharacter.MemberNumber});     
               }  
               else {
                   if (!(SenderCharacter.MemberNumber in watcherList)) {
@@ -302,13 +291,14 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
                   }
                       if (SenderCharacter.MemberNumber in customerList )  {
                       watcherList[SenderCharacter.MemberNumber].punishmentPoints = customerList[SenderCharacter.MemberNumber].punishmentPoints
-                      delete  customerList[SenderCharacter.memberNumber]
+                delete  customerList[SenderCharacter.MemberNumber]
                     }
                 prepareWatcher(SenderCharacter)
               }
             }
       
           if (msg.toLowerCase().includes("play")) {
+      ///??? Error if player is not in CustomerList (after crash , etc) 
                 if  (SenderCharacter.MemberNumber in watcherList)
                 {
                   //todo punish 
@@ -316,6 +306,8 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
                   watcherList[SenderCharacter.MemberNumber].punishmentPoints ++ ;   
                 }
                 else 
+      {
+        if (SenderCharacter.MemberNumber in customerList)  
                 {
                   if (game.status == "playerSelection") {
                         customerList[SenderCharacter.MemberNumber].isPlayer = true
@@ -341,6 +333,14 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
                       ServerSend("ChatRoomChat", { Content: "A new challenge! Who is gonna play with " + SenderCharacter.Name + " ? [to play this round whisper: #play] ", Type: "Chat"});
                   } 
                 memorizeClothing(SenderCharacter)
+        }
+        else
+        //Sender nether in Customer List nor in Wtcher List 
+        {
+          checkRoomForCustomer()
+          ServerSend("ChatRoomChat", { Content: "Sorry, i wasn't aware of you,  " + SenderCharacter.Name + ". Please repeat the command", Type: "Chat"});
+          
+        }
                 }
                    
                 if ((data.Type != null) && (data.Type == "Action") && (msg.startsWith("ActionDice"))) {
@@ -795,6 +795,7 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
       }
       
       function newWatcher(sender) {
+  memorizeClothing(sender)
           watcherList[sender.MemberNumber] = new personMagicData()
         watcherList[sender.MemberNumber].name = sender.Name
         watcherList[sender.MemberNumber].dice = 0
@@ -1096,14 +1097,15 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
         for (var D = 0; D < ChatRoomCharacter.length; D++) {
           if (!(ChatRoomCharacter[D].MemberNumber in customerList)) { continue }
           if (customerList[ChatRoomCharacter[D].MemberNumber].role == "sub") {
+      //ensalvement
             if (customerList[ChatRoomCharacter[D].MemberNumber].totalPointsGained <= enslavement) {
               ServerSend("ChatRoomChat", { Content: ChatRoomCharacter[D].Name + ", seems that you have nothing else to give. You lost everything and now you will be locked. here your enslavement starts", Type: "Chat"} );
               ServerSend("ChatRoomChat", { Content: ChatRoomCharacter[D].Name + ", game over. You lost everything. You will be locked. Here your enslavement starts", Type: "Whisper", Target : ChatRoomCharacter[D].MemberNumber} );
-              // ServerSend("ChatRoomChat", { Content: "For complete submission, you loose all  money,too. " + ChatRoomCharacter[D].Money + " transfered", Type: "Chat", Target : ChatRoomCharacter[D].MemberNumber} );
+        // ServerSend("ChatRoomChat", { Content: "For complete submission, you loose all  money, too. " + ChatRoomCharacter[D].Money + " transfered", Type: "Chat", Target : ChatRoomCharacter[D].MemberNumber} );
                       customerList[ChatRoomCharacter[D].MemberNumber].role = "loser"
                       Player.Money =  Player.Money + Number(ChatRoomCharacter[D].Money)
                       Amount = Number(ChatRoomCharacter[D].Money)
-                      AddMoney(Amount) 
+                //AddMoney(Amount) 
                       ChatRoomCharacter[D].Money = "3"
                       watcherList [ChatRoomCharacter[D].MemberNumber] = customerList[ChatRoomCharacter[D].MemberNumber]
                        delete customerList[ChatRoomCharacter[D].MemberNumber]
