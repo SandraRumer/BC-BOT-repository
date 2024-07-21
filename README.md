@@ -6,6 +6,7 @@ Currently available BOTs:
 * Office
 * Pony Contest
 * Strange Room
+* Prohibited Dice 
 
 
 ## Quick Instructions

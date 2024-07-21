@@ -116,6 +116,9 @@ class personMagicData {
 	buttIntensity = 1
 	lastActivity = Date.now()
 	allowedOrgasmNum = 0
+	dice = 0
+	round = 0 
+	punishmentPoints = 0
 }
 if (personMagicData.prototype.rules == null) {
   personMagicData.prototype.rules = []
