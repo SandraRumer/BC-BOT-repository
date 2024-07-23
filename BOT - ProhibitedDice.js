@@ -247,7 +247,7 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
       mess = "*--------------------" +
       nl + "For Your Intrest," + SenderCharacter.Name + `!`;
             if  (SenderCharacter.MemberNumber in watcherList) {
-        mess = mess + nl + `Punishment Points: ` + customerList[SenderCharacter.MemberNumber].punishmentPoints ;
+        mess = mess + nl + `Punishment Points: ` + watcherList[SenderCharacter.MemberNumber].punishmentPoints ;
             }
             if  (SenderCharacter.MemberNumber in customerList)  {
                 if (customerList[SenderCharacter.MemberNumber].isPlayer &&   customerList[SenderCharacter.MemberNumber].round == game.round && customerList[SenderCharacter.MemberNumber].chips > 0 ) {
@@ -371,6 +371,31 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
           }
           else {
               ServerSend("ChatRoomChat", { Content: 'but not now . Game is in status ' + game.status, Type: "Chat"});
+          }
+        }
+    if (msg.toLowerCase().includes("reward") )
+      //&& game.status == "reward") 
+    {
+    //      ServerSend("ChatRoomChat", { Content: "We are taking a pause while we deliver an amazing reward to " + customerList[game.rewardTarget].name +". Let's give her a lot of orgasms, she earned them!", Type: "Chat", Target: SenderCharacter.MemberNumber});
+    if  (SenderCharacter.MemberNumber in watcherList) {
+      ServerSend("ChatRoomChat", { Content: "Hihi. " +watcherList[SenderCharacter.MemberNumber].name + " is now asking for her deserved reward.", Type: "Chat"});
+    }
+    if  (SenderCharacter.MemberNumber in customerList) {
+      if (customerList[SenderCharacter.MemberNumber].winNum >= domWinReward){
+          if (game.status == "off" || game.status == "end") {
+            console.log("REWARD: " + SenderCharacter.Name)
+            clearTimeout(timeoutHandle)
+            game.status = "reward"
+            game.rewardTarget = SenderCharacter.MemberNumber
+            customerList[SenderCharacter.MemberNumber].winNum = 0
+            ServerSend("ChatRoomChat", { Content: "Hihi. " +customerList[SenderCharacter.MemberNumber].name + " reached " + domWinReward + " wins and now is asking for her deserved reward. It's not something that happens very often. Let's take a pause so that everyone can enjoy it.", Type: "Chat"});
+            timeoutHandle = setTimeout(rewardPhase1,10*1000)
+          } else {
+            ServerSend("ChatRoomChat", { Content: "*A game is in progress wait for it to end.", Type: "Emote", Target: SenderCharacter.MemberNumber});
+          }
+        } else {
+          ServerSend("ChatRoomChat", { Content: "*You don't have enough wins. You need " + domWinReward + " wins to use this command.", Type: "Emote", Target: SenderCharacter.MemberNumber});
+        }
                 }
               }
             }
