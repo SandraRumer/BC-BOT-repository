@@ -3,12 +3,12 @@
 // .isPlayer:  #play requested
 
       minimumParticipants = 2 
-      winTarget = 12
+      //winTarget = 12
       requestDict = {}
       domWinReward = 5
-      subToDom = 3
-      enslavement = -4
-      winningSteps = 8
+      subToDom = 2
+      enslavement = -2
+      winningSteps = 7
       
       // new line in chat - BEGIN
       nl = `
