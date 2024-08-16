@@ -275,12 +275,12 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         if (SenderCharacter.MemberNumber in customerList) {
           notPlaying = false
           if (customerList[SenderCharacter.MemberNumber].isPlayer && customerList[SenderCharacter.MemberNumber].round == game.round && customerList[SenderCharacter.MemberNumber].chips > 0) {
-            mess = mess + nl + "You are playing in round " + customerList[SenderCharacter.MemberNumber].round
+            mess = mess + nl + "You are playing in round " + customerList[SenderCharacter.MemberNumber].round + nl
             if (customerList[SenderCharacter.MemberNumber].dice > 0) {
               mess = mess + nl + `Your actual dice: ` + customerList[SenderCharacter.MemberNumber].dice + nl;
             }
             // Liste der Konkurrenten 
-            mess = mess + "Your Opponent : " + nl
+            mess = mess + "The Opponents : " + nl
             for (oppNumber in customerList) {
               if (customerList[oppNumber].isPlayer)
                 mess = mess + customerList[oppNumber].name + "  " + customerList[oppNumber].dice + nl
@@ -358,10 +358,10 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
             checkCharacterPlace(SenderCharacter)
           }
           else
-          //Sender nether in Customer List nor in Watcher List 
+          //Sender neither in Customer List nor in Watcher List 
           {
             checkRoomForParticipants()
-            ServerSend("ChatRoomChat", { Content: "Sorry, i wasn't aware of you,  " + SenderCharacter.Name + ". Please repeat the command", Type: "Chat" });
+            ServerSend("ChatRoomChat", { Content: "Sorry, i wasn't aware of you,  " + SenderCharacter.Name + ". Please repeat the command", Type: "Chat", Target: SenderCharacter.MemberNumber });
           }
         }
 
@@ -438,8 +438,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
                 customerList[SenderCharacter.MemberNumber].dice = data3.Text
                 checkGame(game, customerList)
               }
-              else
-                {      
+              else {
                   ServerSend("ChatRoomChat", { Content: "*Don't cheat. A Punishment Point is added", Type: "Emote", Target: SenderCharacter.MemberNumber });
                 customerList[SenderCharacter.MemberNumber].punishmentPoints++
                 }
@@ -452,8 +451,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
           customerList[SenderCharacter.MemberNumber].punishmentPoints++
         }
       } else {
-        if (SenderCharacter.MemberNumber in watcherList)
-          {
+        if (SenderCharacter.MemberNumber in watcherList) {
             ServerSend("ChatRoomChat", { Content: "*Watchers are not intended to dice. A Punishment Point is added", Type: "Emote", Target: SenderCharacter.MemberNumber });
           watcherList[SenderCharacter.MemberNumber].punishmentPoints++
 }
@@ -464,7 +462,6 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
   else {
     //Player Text 
     if (SenderCharacter.MemberNumber == Player.MemberNumber) {
-      checkCharacterPlace(SenderCharacter)
       if (msg.toLowerCase().includes("#status")) {
         checkRoomForParticipants()
         mess = `*--------------------` +
@@ -474,12 +471,12 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         mess = mess + "Player : " + nl
         for (memberNumber in customerList) {
           if (customerList[memberNumber].isPlayer)
-            mess = mess +  " " + customerList[memberNumber].name + " totl. points" + customerList[memberNumber].totalPointsGained + nl 
+            mess = mess + " " + customerList[memberNumber].name + " totl. points" + customerList[memberNumber].totalPointsGained + nl
         }
         mess = mess + "Watcher : " + nl
         for (memberNumber in watcherList) {
           if (memberNumber != Player.MemberNumber)
-            mess = mess +  " " + watcherList[memberNumber].name + " " + watcherList[memberNumber].totalPointsGained + nl
+            mess = mess + " " + watcherList[memberNumber].name + " " + watcherList[memberNumber].totalPointsGained + nl
         }
         mess = mess + "NoPlayer : " + nl
         for (memberNumber in customerList) {
@@ -520,9 +517,10 @@ function increaseRound() {
       ServerSend("ChatRoomChat", { Content: customerList[memberNumber].name + ", you lost the game. A point is subtracted, Stay here, waiting for the winner.", Type: "Whisper", Target: char.MemberNumber });
       ServerSend("ChatRoomChat", { Content: customerList[memberNumber].name + " is out", Type: "Chat" });
       // Out 
-      InventoryWear( char, "WoodenSign", "ItemMisc", ["#F00","#B11BDB","#000"], 50)
-      InventoryGet( char, "ItemMisc").Property.Text="Game Lost"
-      InventoryGet( char, "ItemMisc").Property.Text2="No dice"
+      //InventoryWear( char, "WoodenSign", "ItemMisc", ["#F00","#B11BDB","#000"], 50)
+      //InventoryGet( char, "ItemMisc").Property.Text="Game Lost"
+      //InventoryGet( char, "ItemMisc").Property.Text2="No dice"
+      checkSign(char, "out")
       customerList[memberNumber].totalPointsGained--
     }
   }
@@ -597,6 +595,7 @@ function enterLeaveEvent(sender, msg) {
     checkSub(sender)
   }
   console.log(sender.Name + " ENTERED")
+
 }
 
 function checkParticipant(char) {
@@ -762,7 +761,7 @@ function checkRoomForParticipants() {
       checkParticipant(ChatRoomCharacter[D])
     }
   }
-  checkPosition()
+  //checkPosition()
 }
 
 // Places the Character at the position she has earned
@@ -809,8 +808,7 @@ function checkCharacterPlace(char) {
   console.log("NonPlayerPos : " + nonPlayerPosition)
 
   memberNumber = char.MemberNumber
-  if (memberNumber in watcherList )
-  {
+  if (memberNumber in watcherList) {
   if (watcherList[memberNumber].role == "loser") {
     targetPos = loserPosition
     maxTargetPos = loserNumber
@@ -822,7 +820,7 @@ function checkCharacterPlace(char) {
     if (Player.MemberNumber != memberNumber)  //Player 
     {
       targetPos = watcherPosition
-      maxTargetPos = loserNumber + 1 + playerNumber + watcherNumber
+        maxTargetPos = loserNumber + playerNumber + watcherNumber
       role = "watcher"
       //memberNumber
       sortCharacter(memberNumber, targetPos, maxTargetPos, role)
@@ -834,11 +832,10 @@ function checkCharacterPlace(char) {
   }
   else
     //Player
-  if (memberNumber in customerList)
-  {
+    if (memberNumber in customerList) {
     if (customerList[memberNumber].isPlayer) {
       targetPos = playerPosition
-      maxTargetPos = loserNumber + 1 + playerNumber
+        maxTargetPos = loserNumber + playerNumber
       role = "pl"
       //memberNumber
       sortCharacter(memberNumber, targetPos, maxTargetPos, role)
@@ -846,7 +843,7 @@ function checkCharacterPlace(char) {
     }
     else {//nonPlayer
       targetPos = nonPlayerPosition
-      maxTargetPos = loserNumber + 1 + playerNumber + watcherNumber + nonPlayerNumber
+        maxTargetPos = loserNumber + playerNumber + watcherNumber + nonPlayerNumber
       role = "np"
       //memberNumber
       sortCharacter(memberNumber, targetPos, maxTargetPos, role)
@@ -871,109 +868,21 @@ function checkPosition() {
   watcherNumber = 0
 
   for (var D = 0; D < ChatRoomCharacter.length; D++) {
-    memberNumber = ChatRoomCharacter[D].MemberNumber
-    if (memberNumber in watcherList)
-      if (watcherList[memberNumber].role == "loser")
-        loserNumber++
-      else
-        watcherNumber++
+    console.log(ChatRoomCharacter[D].memberNumber + " " + ChatRoomCharacter[D].Name)
+    checkCharacterPlace(ChatRoomCharacter[D])
 
-    if (memberNumber in customerList)
-      if (customerList[memberNumber].isPlayer)
-        playerNumber++
-      else
-        nonPlayerNumber++
-
-  }
-  //consider Player
-  watcherNumber--
-  nonPlayerNumber--
-  console.log("loserNumber : " + loserNumber)
-  console.log("PlayerNumber : " + playerNumber)
-  console.log("WatcherNumber : " + watcherNumber)
-  console.log("NonPlayerNumber : " + nonPlayerNumber)
-
-  loserPosition = 0
-  ThePlayerPosition = loserNumber
-  playerPosition = loserNumber + 1
-  watcherPosition = playerPosition + playerNumber
-  nonPlayerPosition = watcherPosition + watcherNumber
-
-
-  console.log("loserPosition : " + loserPosition)
-  console.log("ThePlayerPos : " + ThePlayerPosition)
-  console.log("playerPos : " + playerPosition)
-  console.log("WatcherPos : " + watcherPosition)
-  console.log("NonPlayerPos : " + nonPlayerPosition)
-
-
-  for (memberNumber in watcherList) {
-    if (watcherList[memberNumber].role == "loser") {
-      targetPos = loserPosition
-      maxTargetPos = loserNumber
-      role = "loser"
-      //memberNumber
-      //sortCharacter(memberNumber, targetPos, maxTargetPos, role)
-      loserPosition++
-    }
-    else     //Watcher
-      if (Player.MemberNumber != memberNumber)  //Player
-      {
-        targetPos = watcherPosition
-        maxTargetPos = loserNumber + 1 + playerNumber + watcherNumber
-        role = "watcher"
-        //memberNumber
-        //  sortCharacter(memberNumber, targetPos, maxTargetPos, role)
-        watcherPosition++
-      }
-  }
-  for (memberNumber in customerList) {
-    if (Player.MemberNumber == memberNumber) {  //Player
-      sortCharacter(memberNumber, ThePlayerPosition, ThePlayerPosition, "bot")
-
-    }
-    else
-      //Player
-      if (customerList[memberNumber].isPlayer) {
-        targetPos = playerPosition
-        maxTargetPos = loserNumber + 1 + playerNumber
-        role = "pl"
-        //memberNumber
-        // sortCharacter(memberNumber, targetPos, maxTargetPos, role)
-        playerPosition++
-      }
-      else {//nonPlayer
-        targetPos = nonPlayerPosition
-        maxTargetPos = loserNumber + 1 + playerNumber + watcherNumber + nonPlayerNumber
-        role = "np"
-        //memberNumber
-        // sortCharacter(memberNumber, targetPos, maxTargetPos, role)
-        nonPlayerPosition++
-      }
-
-    /*    for (var D = 0; D < ChatRoomCharacter.length; D++) {
-      C = ChatRoomCharacter[D]
-      const Pos = ChatRoomCharacter.findIndex(c => c.MemberNumber === C.MemberNumber);
-      console.log(Pos)
- 
-    }
-    watcherNumber = watcherList.length - 1
-    console.log("PlayerNumber : " + playerNumber)
-    customerNumber = customerList.length - 1
-    console.log("CustomerNumber : " + customerNumber)
-*/
   }
 }
 
-function sortCharacter(memberNumber, targetPos, maxTargetPos, role) {
-  const Pos = ChatRoomCharacter.findIndex(c => c.MemberNumber == memberNumber);
+function checkSign(C, role) {
   const roleColor1 = {
     "sub": "#0000FF",
     "bot": "#FFF",
     "pl": "#6C8A6C",
     "np": "#777",
     "watcher": "#852AB3",
-    "loser": "#D78BEA"
+    "loser": "#D78BEA",
+    "out": "#D78BEA"
   }
   const roleColor2 = {
     "sub": "#0000FF",
@@ -981,7 +890,8 @@ function sortCharacter(memberNumber, targetPos, maxTargetPos, role) {
     "pl": "#6C8A6C",
     "np": "#000",
     "watcher": "#852AB3",
-    "loser": "#D78BEA"
+    "loser": "#D78BEA",
+    "out": "#852AB3"
   }
   const roleColorRope = "#B11BDB"
   const roleText = {
@@ -990,7 +900,8 @@ function sortCharacter(memberNumber, targetPos, maxTargetPos, role) {
     "pl": "player",
     "np": "not playing",
     "watcher": "watcher",
-    "loser": "loser"
+    "loser": "loser",
+    "out": "I am out"
   }
   const roleText2 = {
     "sub": "",
@@ -998,31 +909,46 @@ function sortCharacter(memberNumber, targetPos, maxTargetPos, role) {
     "pl": "",
     "np": "whimp",
     "watcher": "too late to help",
-    "loser": ""
+    "loser": "",
+    "out": " no dicing anymore"
   }
-  if (Pos >= 0) {
-    // Mark role
-    C = ChatRoomCharacter[Pos]
     InventoryWear(C, "WoodenSign", "ItemMisc", [roleColor1[role], roleColorRope, roleColor2[role]], 50)
     InventoryGet(C, "ItemMisc").Property.Text = roleText[role]
     InventoryGet(C, "ItemMisc").Property.Text2 = roleText2[role]
     //InventoryGet(Player, "ItemMisc").Color=[roleColor1[role],roleColor2[role],roleColor3]
     ChatRoomCharacterItemUpdate(C, "ItemMisc");
     CharacterRefresh(C);
+}
+
+function sortCharacter(memberNumber, targetPos, maxTargetPos, role) {
+  const Pos = ChatRoomCharacter.findIndex(c => c.MemberNumber == memberNumber);
+  if (Pos >= 0) {
+    // Mark role
+    C = ChatRoomCharacter[Pos]
+    if (memberNumber in customerList)
+      if (customerList[memberNumber].isPlayer && customerList[memberNumber].round == game.round && customerList[memberNumber].chips <= 0)
+        checkSign(C, "out")
+      else
+        checkSign(C, role)
+
     if (((Pos > maxTargetPos) || (Pos < targetPos))) {
+      while (targetPos < maxTargetPos) {
       targetMemberNumber = ChatRoomCharacter[targetPos].MemberNumber
-      // Durchlaufe die Kategorien von targetPos nach maxTargetPos
-      // prüfe ob Figur richtig is? 
-      // Erhöhe targetPos und führe Prüdfung erneut durch 
-      //??? 
-      //Danach ende oder switch
-      //while (correctPlace(targetMemberNumber role) )
-      //  loserPosition++
+      
+    targetrole = "nothing"
+      if  (targetMemberNumber in  watcherList)
+          targetrole = watcherList[targetMemberNumber].role
+      if  ( targetMemberNumber in  customerList)
+        targetrole = customerList[targetMemberNumber].role
 
-      //---
-      //Tausch zwischen loserPosition und Pos 
-      // pos =
-
+      if (( targetPos < maxTargetPos ) && (role == targetrole) )
+          targetPos ++
+        else
+         break
+          
+      }
+      
+    
       ChatRoomCharacterViewMoveTarget = ChatRoomCharacter[targetPos].MemberNumber
       if (ChatRoomCharacterViewMoveTarget !== C.MemberNumber) {
         ServerSend("ChatRoomAdmin", {
@@ -1056,8 +982,8 @@ function freeAllCustomers(reapplyCloth = false) {
           customerList[ChatRoomCharacter[R].MemberNumber].chips = winningSteps
           customerList[ChatRoomCharacter[R].MemberNumber].isPlayer = false;
           checkSub(ChatRoomCharacter[R])
-          CharacterSetActivePose(ChatRoomCharacter[R], "LegsClosed", true);
-          ServerSend("ChatRoomCharacterPoseUpdate", { Pose: ChatRoomCharacter[R].ActivePose });
+          //CharacterSetActivePose(ChatRoomCharacter[R], "LegsClosed", true);
+          //ServerSend("ChatRoomCharacterPoseUpdate", { Pose: ChatRoomCharacter[R].ActivePose });
         }
         if (reapplyCloth) { reapplyClothing(ChatRoomCharacter[R]) }
         ChatRoomCharacterUpdate(ChatRoomCharacter[R])
@@ -1068,7 +994,6 @@ function freeAllCustomers(reapplyCloth = false) {
         ServerSend("ChatRoomChat", { Content: ChatRoomCharacter[R].Name + ", will stay and watch.", Type: "Chat" });
       }
   }
-
 }
 
 
@@ -1231,7 +1156,7 @@ function choosePunishment() {
     if (watcherList[memberNumber].beingPunished) {
       emptyWatcher++
       char = charFromMemberNumber(memberNumber)
-      ServerSend("ChatRoomChat", { Content: memberNumber + ": " + watcherList[memberNumber].punishmentPoints + " punishmentPoints", Type: "Whisper", Target: char.MemberNumber })
+      ServerSend("ChatRoomChat", { Content: char.Name + ": " + watcherList[memberNumber].punishmentPoints + " punishmentPoints", Type: "Whisper", Target: char.MemberNumber })
       spankCustomer(memberNumber)
       watcherList[memberNumber].punishmentPoints--
       if (watcherList[memberNumber].punishmentPoints <= 0) {
@@ -1244,9 +1169,9 @@ function choosePunishment() {
     for (memberNumber in customerList) {
       if (customerList[memberNumber].beingPunished) {
         emptyWatcher++
-        ServerSend("ChatRoomChat", { Content: char.Name + ": " + customerList[memberNumber].punishmentPoints + "  punishments", Type: "Chat" })
-        char = charFromMemberNumber(memberNumber)
-        ServerSend("ChatRoomChat", { Content: char.Name + ": " + customerList[memberNumber].punishmentPoints + " punishmentPoints", Type: "Whisper", Target: char.MemberNumber })
+      delinquent = charFromMemberNumber(memberNumber)
+      ServerSend("ChatRoomChat", { Content: delinquent.Name + ": " + customerList[memberNumber].punishmentPoints + "  punishments", Type: "Chat" })
+      ServerSend("ChatRoomChat", { Content: delinquent.Name + ": " + customerList[memberNumber].punishmentPoints + " punishmentPoints", Type: "Whisper", Target: delinquent.MemberNumber })
         spankCustomer(memberNumber)
         customerList[memberNumber].punishmentPoints--
         if (customerList[memberNumber].punishmentPoints <= 0) {
@@ -1296,7 +1221,7 @@ function handleLoser(memberNumber) {
   })
   ActivityRun(Player, delinquent, targetGroup, activity)
   customerList[memberNumber].role = "loser"
-  console.log(delinquent.Name + "gets enslaved")
+  console.log(delinquent.Name + " gets enslaved")
   delAmount = Number(delinquent.Money)
   payerAmount = Number(Player.Money)
   console.log(delinquent.Name + " " + delinquent.Money)
@@ -1313,8 +1238,11 @@ function handleLoser(memberNumber) {
   console.log("-----after grabbing ----------")
   console.log(delinquent.Name + " " + delinquent.Money)
   console.log(Player.Name + " " + Player.Money)
-  if (delinquent.MemberNumber in customerList[delinquent.MemberNumber]) {
+  if (memberNumber in customerList) {
+
     newWatcher(delinquent)
+    delete customerList[memberNumber]
+
   }
    checkCharacterPlace(delinquent) 
 }
