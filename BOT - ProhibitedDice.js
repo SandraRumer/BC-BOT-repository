@@ -17,7 +17,7 @@ nl = `
 
 
 Player.Description = `
-....... automated ServiceBot model "Dice gambler" 0.8.3 .......
+....... automated ServiceBot model "Dice gambler" 0.8.4 .......
       Dicing Game
       ===========
       Overview for COMMANDS: all commands starts with #
