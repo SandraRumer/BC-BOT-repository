@@ -62,7 +62,7 @@ ChatRoomMessageAdditionDict["Ungarble"] = function(SenderCharacter, msg, data) {
 function ChatRoomMessageUngarble(SenderCharacter, msg, data) {
   // This part is to display a chat message that shows the ungarbled message when someone is gagged.
   if (data.Type != null) {
-    if ((data.Type == "Chat")) { // && (SenderCharacter.MemberNumber != Player.MemberNumber)) {
+    if ((data.Type == "Chat") && (SenderCharacter.MemberNumber != Player.MemberNumber)) {
 
       var GagEffect = 0;
       GagEffect += SpeechGetGagLevel(SenderCharacter, "ItemMouth");
@@ -160,6 +160,7 @@ function removeRestrains(char){
 	InventoryRemove(target,"ItemButt")
 	InventoryRemove(target,"ItemArms")
 	InventoryRemove(target,"ItemHands")
+	if ( !target.IsOwned())
 	InventoryRemove(target,"ItemNeck")
 	InventoryRemove(target,"ItemMouth")
 	InventoryRemove(target,"ItemMouth2")
@@ -175,6 +176,7 @@ function removeRestrains(char){
 	InventoryRemove(target,"ItemHead")
 	InventoryRemove(target,"ItemDevices")
   InventoryRemove(target,"ItemEars")
+	InventoryRemove(target,"ItemMisc")
 }
 
 function removeClothes(char, removeUnderwear = true, removeCosplay = false){

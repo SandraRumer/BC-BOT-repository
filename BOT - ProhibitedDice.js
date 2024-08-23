@@ -17,7 +17,7 @@ nl = `
 
 
 Player.Description = `
-....... automated ServiceBot model "Dice gambler" 0.8.4 .......
+....... automated ServiceBot model "Dice gambler" 0.8.5 .......
       Dicing Game
       ===========
       Overview for COMMANDS: all commands starts with #
@@ -79,9 +79,6 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
 ServerSend("AccountUpdate", { Description: Player.Description });
 ChatRoomCharacterUpdate(Player)
 
-//pose LegsClosed
-CharacterSetActivePose(Player, "LegsClosed", true)
-ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
 
 if (typeof watcherList === 'undefined') {
   resetWatcherList()
@@ -471,7 +468,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         mess = mess + "Player : " + nl
         for (memberNumber in customerList) {
           if (customerList[memberNumber].isPlayer)
-            mess = mess + " " + customerList[memberNumber].name + " totl. points" + customerList[memberNumber].totalPointsGained + nl
+            mess = mess + " " + customerList[memberNumber].name + " totl. points: " + customerList[memberNumber].totalPointsGained + nl
         }
         mess = mess + "Watcher : " + nl
         for (memberNumber in watcherList) {
@@ -912,6 +909,9 @@ function checkSign(C, role) {
     "loser": "",
     "out": " no dicing anymore"
   }
+
+  if (customerList[C.MemberNumber].isPlayer && customerList[C.MemberNumber].chips <= 0)
+    role = "out"
     InventoryWear(C, "WoodenSign", "ItemMisc", [roleColor1[role], roleColorRope, roleColor2[role]], 50)
     InventoryGet(C, "ItemMisc").Property.Text = roleText[role]
     InventoryGet(C, "ItemMisc").Property.Text2 = roleText2[role]
@@ -936,13 +936,23 @@ function sortCharacter(memberNumber, targetPos, maxTargetPos, role) {
       targetMemberNumber = ChatRoomCharacter[targetPos].MemberNumber
       
     targetrole = "nothing"
-      if  (targetMemberNumber in  watcherList)
+        if (targetMemberNumber in watcherList)
           targetrole = watcherList[targetMemberNumber].role
-      if  ( targetMemberNumber in  customerList)
+        if (targetMemberNumber in customerList) {
         targetrole = customerList[targetMemberNumber].role
 
-      if (( targetPos < maxTargetPos ) && (role == targetrole) )
-          targetPos ++
+          if (customerList[targetMemberNumber].isPlayer) {
+            if (customerList[targetMemberNumber].round == game.round && customerList[targetMemberNumber].chips <= 0)
+              targetrole = "out"
+            else
+              targetrole = "pl"
+          }
+
+          else targetroleOut = "np"
+        }
+
+        if ((targetPos < maxTargetPos) && (role == targetrole))
+          targetPos++
         else
          break
           
@@ -1058,12 +1068,13 @@ function checkSub(sender) {
   if (sender.MemberNumber in customerList)
     if (customerList[sender.MemberNumber].role == "sub") {
       // the "halsband"
+      if (!sender.IsOwned()) {
       InventoryWear(sender, "LeatherChoker", "ItemNeck", ["Default", "#000000"], 50)
-
+        //only if it is allowed to 
       InventoryLock(sender, InventoryGet(sender, "ItemNeck"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
 
-      //only if it is allowed to 
       InventoryGet(sender, "ItemNeck").Property.CombinationNumber = customerList[sender.MemberNumber].lockCode
+      }
       //to do .... the crafted one
 
       InventoryWear(sender, "CollarChainLong", "ItemNeckRestraints", "Service Bot's - Sub Holder", 50)
@@ -1086,7 +1097,6 @@ function winningCeremony(winnerNumber) {
   checkSub(winner)
   ChatRoomCharacterUpdate(winner)
   //*taking Photo 
-
   // handle Punishment points
   punishmentAll()
 }
@@ -1239,12 +1249,11 @@ function handleLoser(memberNumber) {
   console.log(delinquent.Name + " " + delinquent.Money)
   console.log(Player.Name + " " + Player.Money)
   if (memberNumber in customerList) {
-
     newWatcher(delinquent)
     delete customerList[memberNumber]
-
   }
    checkCharacterPlace(delinquent) 
+  checkSign(delinquent, "loser")
 }
 
 
@@ -1276,6 +1285,7 @@ function checkWinners() {
         customerList[ChatRoomCharacter[D].MemberNumber].role = "sub"
         customerList[ChatRoomCharacter[D].MemberNumber].winNum = 0
         customerList[ChatRoomCharacter[D].MemberNumber].totalPointsGained = 0
+        checkSub(ChatRoomCharacter[D])
       }
     }
     ChatRoomCharacterUpdate(ChatRoomCharacter[D])
@@ -1297,6 +1307,7 @@ function prepareWatcher(char) {
   InventoryWear(char, "HarnessBallGag1", "ItemMouth2", "#000000", 50)
   InventoryWear(char, "LeatherBreastBinder", "ItemBreast", "#000000", 50)
   InventoryWear(char, "LeatherMittens", "ItemHands", "202020", 50)
+  if ( !char.IsOwned())
   InventoryWear(char, "LeatherChoker", "ItemNeck", "#000000", 50)
   InventoryWear(char, "LeatherHarness", "ItemTorso", "#000000", 50)
   InventoryWear(char, "LeatherChastityBelt", "ItemPelvis", "#000000", 50)
