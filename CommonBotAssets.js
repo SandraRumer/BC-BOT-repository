@@ -85,7 +85,7 @@ function ChatRoomMessageUngarble(SenderCharacter, msg, data) {
         div.setAttribute('data-enterleave','smaller')
         //div.setAttribute('data-time', ChatRoomCurrentTime());
         //div.setAttribute('data-sender', data.Sender);
-        div.setAttribute('style', 'padding-left: 0.8em; font-size: 0.6em; background-color:' + ChatRoomGetTransparentColor(SenderCharacter.LabelColor) + ';');
+		div.setAttribute('style', 'padding-left: 0.8em; font-size: 0.6em; background-color: #FF0' + ';');
         div.innerHTML = msg;
 
         var Refocus = document.activeElement.id == "InputChat";

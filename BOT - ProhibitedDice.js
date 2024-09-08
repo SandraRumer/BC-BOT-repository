@@ -1,3 +1,9 @@
+RoomName = "Prohibited Dice"
+RoomDescription = "Here you can play prohibited and non consent dice games. Read the bot profile for instructions!"
+// Dicing challenges
+// -----------------------------------------------------------------------------
+// Update Room Data
+
 // System - ATTENTION: subs will be chained upon entering and must play to leave.
 // -----------------------------------------------------------------------------
 // .isPlayer:  #play requested
@@ -459,8 +465,14 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
   else {
     //Player Text 
     if (SenderCharacter.MemberNumber == Player.MemberNumber) {
+      if (msg.toLowerCase().includes("#heal")) {
+        checkRoomForParticipants()
+        checkCharacterPlace(Player)
+        checkRoomForSigns()
+      }
       if (msg.toLowerCase().includes("#status")) {
         checkRoomForParticipants()
+        checkCharacterPlace(Player)
         mess = `*--------------------` +
           nl + `Runde :` + game.round +
           nl + ` status ` + game.status +
@@ -478,13 +490,14 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         mess = mess + "NoPlayer : " + nl
         for (memberNumber in customerList) {
           if ((!customerList[memberNumber].isPlayer) && (memberNumber != Player.MemberNumber))
-            mess = mess + " " + customerList[memberNumber].name + nl
+            mess = mess + " " + customerList[memberNumber].name + " " + customerList[memberNumber].totalPointsGained + nl
         }
         mess = mess + `--------------------` + nl
         ServerSend("ChatRoomChat", { Content: mess, Type: "Emote", Target: Player.MemberNumber });
         checkGame(game, customerList)
       }
       if (msg.toLowerCase().includes("#restart")) {
+        checkCharacterPlace(Player)
         mess = `*--------------------` +
           nl + `ATTENTION PLEASE` +
           nl + `Game is restarted` +
@@ -710,6 +723,7 @@ function newWatcher(sender) {
   watcherList[sender.MemberNumber].name = sender.Name
   watcherList[sender.MemberNumber].dice = 0
   watcherList[sender.MemberNumber].round = 0
+  watcherList[sender.MemberNumber].role = "watcher"
   ServerSend("ChatRoomChat", { Content: sender.Name + ", I am delighted that you will watch. You have been chained and if you want to leave here you will have to earn your freedom.", Type: "Chat", Target: sender.MemberNumber });
   if (sender.MemberNumber in customerList) {
     watcherList[sender.MemberNumber].role = customerList[sender.MemberNumber].role
@@ -720,7 +734,7 @@ function newWatcher(sender) {
 }
 
 
-function resetGame() {
+function newGame() {
   // clearTimeout(timeCheckHandle)
   game = {
     status: "off", //possible status playerSelection, dicing, end, off, reward
@@ -751,6 +765,22 @@ function resetGame() {
   ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
   ServerSend("ChatRoomChat", { Content: "I am ready for a new game.", Type: "Chat" });
 }
+
+function resetGame() {
+  // clearTimeout(timeCheckHandle)
+  game.status= "off"
+  game.round = 0
+  
+  freeAllCustomers(reapplyCloth = true);
+  for (memberNumber in customerList) {
+    customerList[memberNumber].dice = 0
+    customerList[memberNumber].round = 0
+  }
+  CharacterSetActivePose(Player, "Kneel", true);
+  ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
+  ServerSend("ChatRoomChat", { Content: "I am ready for a new game.", Type: "Chat" });
+}
+
 
 function checkRoomForParticipants() {
   for (var D = 0; D < ChatRoomCharacter.length; D++) {
@@ -872,6 +902,7 @@ function checkPosition() {
 }
 
 function checkSign(C, role) {
+
   const roleColor1 = {
     "sub": "#0000FF",
     "bot": "#FFF",
@@ -909,8 +940,17 @@ function checkSign(C, role) {
     "loser": "",
     "out": " no dicing anymore"
   }
-
-  if (customerList[C.MemberNumber].isPlayer && customerList[C.MemberNumber].chips <= 0)
+  if (C == (undefined))
+    return
+  console.log(C.MemberNumber + " " + role)
+  //if (C.MemberNumber in watcherList) {
+  // obsolete ? 
+  //  if (role != "loser")
+  //    role = "watcher"
+  // }
+  //else
+  if (C.MemberNumber in customerList)
+    if (customerList[C.MemberNumber].isPlayer && customerList[C.MemberNumber].chips <= 0)
     role = "out"
     InventoryWear(C, "WoodenSign", "ItemMisc", [roleColor1[role], roleColorRope, roleColor2[role]], 50)
     InventoryGet(C, "ItemMisc").Property.Text = roleText[role]
@@ -919,6 +959,37 @@ function checkSign(C, role) {
     ChatRoomCharacterItemUpdate(C, "ItemMisc");
     CharacterRefresh(C);
 }
+
+
+function checkRoomForSigns() {
+  console.log("----------------- checkRoomForSigns")
+  for (var D = 0; D < ChatRoomCharacter.length; D++) {
+    memberNumber = ChatRoomCharacter[D].MemberNumber
+    console.log(memberNumber + " " + ChatRoomCharacter[D].Name)
+
+    if (memberNumber == Player.MemberNumber)
+      role = "bot"
+    else {
+      if (memberNumber in watcherList)
+        if (watcherList[memberNumber].role == "loser")
+          role = watcherList[memberNumber].role
+        else
+          role = "watcher"
+
+      if (memberNumber in customerList)
+        if (customerList[memberNumber].isPlayer)
+          if (customerList[memberNumber].round == game.round && customerList[memberNumber].chips <= 0)
+            role = "out"
+          else
+            role = "pl"
+        else
+          role = "np"
+    }
+    checkSign(ChatRoomCharacter[D], role)
+  }
+  console.log("----------------- End of checkRoomForSigns")
+}
+
 
 function sortCharacter(memberNumber, targetPos, maxTargetPos, role) {
   const Pos = ChatRoomCharacter.findIndex(c => c.MemberNumber == memberNumber);
@@ -937,17 +1008,16 @@ function sortCharacter(memberNumber, targetPos, maxTargetPos, role) {
       
     targetrole = "nothing"
         if (targetMemberNumber in watcherList)
-          targetrole = watcherList[targetMemberNumber].role
+          if (watcherList[targetMemberNumber].role == "loser")
+            targetroleOut = watcherList[targetMemberNumber].role
+          else
+            targetroleOut = "watcher"
+
         if (targetMemberNumber in customerList) {
         targetrole = customerList[targetMemberNumber].role
 
-          if (customerList[targetMemberNumber].isPlayer) {
-            if (customerList[targetMemberNumber].round == game.round && customerList[targetMemberNumber].chips <= 0)
-              targetrole = "out"
-            else
-              targetrole = "pl"
-          }
-
+          if (customerList[targetMemberNumber].isPlayer)
+            targetroleOut = "pl"
           else targetroleOut = "np"
         }
 
@@ -987,20 +1057,20 @@ function freeAllCustomers(reapplyCloth = false) {
 
     if (ChatRoomCharacter[R].MemberNumber != Player.MemberNumber)
       if (!(ChatRoomCharacter[R].MemberNumber in watcherList)) {
-        removeRestrains(R)
         if (ChatRoomCharacter[R].MemberNumber in customerList) {
+        removeRestrains(R)
           customerList[ChatRoomCharacter[R].MemberNumber].chips = winningSteps
           customerList[ChatRoomCharacter[R].MemberNumber].isPlayer = false;
           checkSub(ChatRoomCharacter[R])
           //CharacterSetActivePose(ChatRoomCharacter[R], "LegsClosed", true);
           //ServerSend("ChatRoomCharacterPoseUpdate", { Pose: ChatRoomCharacter[R].ActivePose });
-        }
         if (reapplyCloth) { reapplyClothing(ChatRoomCharacter[R]) }
         ChatRoomCharacterUpdate(ChatRoomCharacter[R])
         ServerSend("ChatRoomChat", { Content: "*Player " + ChatRoomCharacter[R].Name + " prepared for dicing.", Type: "Emote" });
+        }
       }
       else {
-        ServerSend("ChatRoomChat", { Content: "*You are unfortunately no customer and stay.", Type: "Whisper", Target: ChatRoomCharacter[R].MemberNumber });
+        ServerSend("ChatRoomChat", { Content: "*You are unfortunately stuck and you will stay.", Type: "Whisper", Target: ChatRoomCharacter[R].MemberNumber });
         ServerSend("ChatRoomChat", { Content: ChatRoomCharacter[R].Name + ", will stay and watch.", Type: "Chat" });
       }
   }
@@ -1234,7 +1304,7 @@ function handleLoser(memberNumber) {
   console.log(delinquent.Name + " gets enslaved")
   delAmount = Number(delinquent.Money)
   payerAmount = Number(Player.Money)
-  console.log(delinquent.Name + " " + delinquent.Money)
+  console.log(delinquent.Name + " " + delinquent.Money + "-" + delAmount)
   console.log(Player.Name + " " + Player.Money)
 
   // Player.Money =  Player.Money + Number(ChatRoomCharacter[D].Money)
@@ -1280,12 +1350,11 @@ function checkWinners() {
         ServerSend("ChatRoomChat", { Content: "Congratulations " + ChatRoomCharacter[D].Name + "! You got " + domWinReward + " wins. You have earned the rights to a special reward! When you want to get your reward just use the command '#reward'.", Type: "Chat" });
       }
       if ((customerList[ChatRoomCharacter[D].MemberNumber].role == "dom") && (customerList[ChatRoomCharacter[D].MemberNumber].totalPointsGained <= (subToDom * -1))) {
-        ServerSend("ChatRoomChat", { Content: "I am sorry " + ChatRoomCharacter[D].Name + "! You got too many lost games. You have lost your freedom. You can't leave anymore but you can continue playing to gain freedom back", Type: "Chat" });
+        ServerSend("ChatRoomChat", { Content: "I am sorry " + ChatRoomCharacter[D].Name + "! You got too many lost games. You have lost partly your freedom. You can't leave anymore but you can continue playing to gain freedom back", Type: "Chat" });
         customerList[ChatRoomCharacter[D].MemberNumber].isPlayer = false
         customerList[ChatRoomCharacter[D].MemberNumber].role = "sub"
         customerList[ChatRoomCharacter[D].MemberNumber].winNum = 0
         customerList[ChatRoomCharacter[D].MemberNumber].totalPointsGained = 0
-        checkSub(ChatRoomCharacter[D])
       }
     }
     ChatRoomCharacterUpdate(ChatRoomCharacter[D])
@@ -1307,7 +1376,7 @@ function prepareWatcher(char) {
   InventoryWear(char, "HarnessBallGag1", "ItemMouth2", "#000000", 50)
   InventoryWear(char, "LeatherBreastBinder", "ItemBreast", "#000000", 50)
   InventoryWear(char, "LeatherMittens", "ItemHands", "202020", 50)
-  if ( !char.IsOwned())
+  if (!char.IsOwned())
   InventoryWear(char, "LeatherChoker", "ItemNeck", "#000000", 50)
   InventoryWear(char, "LeatherHarness", "ItemTorso", "#000000", 50)
   InventoryWear(char, "LeatherChastityBelt", "ItemPelvis", "#000000", 50)
