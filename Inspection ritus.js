@@ -27,14 +27,12 @@ inspectionList = [
   "ItemTorso2",
   "ItemPelvis",
   "ItemVulva",
-  "ItemClitoris",
+  "ItemVulvaPiercings",
   "ItemButt",
-  "ItemTights",
   "ItemLegs",
   "ItemFeet",
-  "ItemHands",
-
-  "ItemBoots"
+  "ItemFeet",
+  "ItemFeet"
 ]
 t =
   [
@@ -43,15 +41,11 @@ t =
   ]
 
 
-
-
-
-
 actionList = [
   "TakeCare",//had/ face
   "Caress", //had/ face
   "Caress",//nose 
-    "Caress", //ears //
+  "Caress", //ears //
   "Caress", //ears  "Whisper", //ears
   "Caress",//mouth 
   "Caress",//mouthtodo "Kiss", //mouth
@@ -62,20 +56,21 @@ actionList = [
   "Caress",//nippls
   "Caress",//niples
   "Caress", //arms
-  "Caress",//"Cuddle", //arms
-    "Caress",  //Torso
-    "Caress",  //Torso"MassageHands",  //Torso
-    "Caress", //"MassageHands",  //Pelvis
-   "Caress", //"PenetrateSlow", // Vulva
-   "Caress", // "PenetrateSlow", //Clitoris
+  "MassageHands",//arms
+  "Caress",  //Torso
+  "MassageHands",  //Torso"MassageHands",  //Torso
+  "Caress", //"MassageHands",  //Pelvis
+  "MasturbateItem", //"PenetrateSlow", // Vulva
+  "Caress", // "PenetrateSlow", //Clitoris
   "Spank", //butt
-  "Caress",  //Tights
   "Caress",  //Legs
   "Caress",  //feet
-"Caress",  //Hands
-
-  "TakeCare", //boots
+  "Tickle",  //feet
+  "MassageHands" //feet
 ]
+
+
+
 
 s = [
 
@@ -237,8 +232,8 @@ function nextStep(delinquent, step) {
   function finishInspection(char) {
     console.log("finish")
     ServerSend("ChatRoomChat", { Content: "Inspection of   " + char.Name + " done ", Type: "Chat" });
-    ServerSend("ChatRoomChat", { Content: `no weapon, drugs or explosive found!`, Type: "Emote" });
-    InventoryRemove(Player,"ItemVulva")
+    ServerSend("ChatRoomChat", { Content: `No weapon, drugs or explosive found!`, Type: "Chat" });
+    InventoryRemove(Player, "ItemHandheld")
     ServerSend("ChatRoomChat", { Content: `Well done`, Type: "Chat", Target: char.MemberNumber });
     reapplyClothing(char)
 
