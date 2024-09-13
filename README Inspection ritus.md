@@ -12,5 +12,7 @@ Command :
 
 Version information : 
 
+- 0.8.6 fixing further dumps 
+
 
 
