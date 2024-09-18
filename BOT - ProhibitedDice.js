@@ -1099,7 +1099,7 @@ function freeAllCustomers(reapplyCloth = false) {
     if (ChatRoomCharacter[R].MemberNumber != Player.MemberNumber)
       if (!(ChatRoomCharacter[R].MemberNumber in watcherList)) {
         if (ChatRoomCharacter[R].MemberNumber in customerList) {
-          removeRestrains(R)
+          removeRestrains(ChatRoomCharacter[R])
           customerList[ChatRoomCharacter[R].MemberNumber].chips = winningSteps
           customerList[ChatRoomCharacter[R].MemberNumber].isPlayer = false;
           checkSub(ChatRoomCharacter[R])
