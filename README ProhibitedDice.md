@@ -18,15 +18,7 @@ to dice us a command /dice 100. Trying to cheat will be punished.
 * restart
 * heal
 
-Version information : 
-
-There are several bugs in the game. 
-
-loosing too much : 
-	becoming a sub
-
-considering males
-
+Version information : 0.88 beta Test for the game 
 ...
 
 

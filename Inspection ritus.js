@@ -215,6 +215,9 @@ function actionStep(char, step) {
   })
   console.log(targetGroup)
   console.log(activity)
+  if (activity == null)
+    console.log ("null") 
+    else
   ActivityRun(Player, char, targetGroup, activity)
   step++
   nextStep(char, step)
