@@ -544,7 +544,18 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
 
       }
 
-  }
+      if (msg.includes("Orgasm") && game.rewardTarget == SenderCharacter.MemberNumber) {
+        if (game.rewardOrgasmNum == 0) {
+          ServerSend("ChatRoomChat", { Content: "Good work, she had her first orgasm! But let's continue she deserves more!", Type: "Chat"});
+        } else if (game.rewardOrgasmNum == 1) {
+          ServerSend("ChatRoomChat", { Content: "Another one! Hihi. One more girls.", Type: "Chat"});
+        } else if (game.rewardOrgasmNum == 2) {
+          ServerSend("ChatRoomChat", { Content: "That was a nice one. I hope you enjoyed your reward.", Type: "Chat"});
+          ServerSend("ChatRoomChat", { Content: "You can now be freed. Your lock code is " + customerList[SenderCharacter.MemberNumber].lockCode + "." , Type: "Chat"});
+          resetGame()
+        }
+        game.rewardOrgasmNum = game.rewardOrgasmNum + 1
+    }
   else {
     //Player Text 
     if (SenderCharacter.MemberNumber == Player.MemberNumber) {
@@ -552,6 +563,15 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         checkRoomForParticipants()
         checkCharacterPlace(Player)
         checkRoomForSigns()
+      }
+      if (msg.toLowerCase().includes("#release")) {
+        for (var D = 0; D < ChatRoomCharacter.length; D++) {
+         if (msg.toLowerCase().endsWith(ChatRoomCharacter[D].Name.toLowerCase())) {
+              releaseWatcher(ChatRoomCharacter[D].MemberNumber)
+         }
+              else 
+              console.log ("no one released: ")
+        }
       }
       if (msg.toLowerCase().includes("#status")) {
         checkRoomForParticipants()
@@ -1394,11 +1414,15 @@ function spankCustomer(memberNumber) {
 
 function handleLoser(memberNumber) {
   delinquent = charFromMemberNumber(memberNumber)
-  ServerSend("ChatRoomChat", { Content: "Poor " + delinquent.Name + "! Your fate is certain ! ", Type: "Chat" });
+  memberName = " "
+  if ( delinquent != null)
+  {
+  memberName = delinquent.Name 
+  ServerSend("ChatRoomChat", { Content: "Poor " + memberName + "! Your fate is certain ! ", Type: "Chat" });
   //prepareWatcher (delinquent)
   //ChatRoomAdminChatAction("Move",delinquent.memberNumber,1)
-  ServerSend("ChatRoomChat", { Content: delinquent.Name + ", You lost everything. ", Type: "Chat" });
-  ServerSend("ChatRoomChat", { Content: delinquent.Name + ", Now you will pay with your freedom. Your enslavement starts now", Type: "Whisper", Target: delinquent.MemberNumber });
+  ServerSend("ChatRoomChat", { Content: memberName + ", You lost everything. ", Type: "Chat" });
+  ServerSend("ChatRoomChat", { Content: memberName + ", Now you will pay with your freedom. Your enslavement starts now", Type: "Whisper", Target: delinquent.MemberNumber });
   // ServerSend("ChatRoomChat", { Content: "For complete submission, you loose all  money, too. " + ChatRoomCharacter[D].Money + " transfered", Type: "Chat", Target : ChatRoomCharacter[D].MemberNumber} );
   //InventoryGet(C, C.FocusGroup.Name)
   targetGroup = ActivityGetGroupOrMirror(Player.AssetFamily, "ItemBoots")
@@ -1408,6 +1432,7 @@ function handleLoser(memberNumber) {
   ActivityRun(Player, delinquent, targetGroup, activity)
   customerList[memberNumber].role = "loser"
   console.log(delinquent.Name + " gets enslaved")
+
   //delAmount = Number(delinquent.Money)
   //payerAmount = Number(Player.Money)
   //console.log(delinquent.Name + " " + delinquent.Money + "-" + delAmount)
@@ -1434,6 +1459,8 @@ function handleLoser(memberNumber) {
     console.log("error in watcherList" + memberNumber)
   checkCharacterPlace(delinquent)
   checkSign(delinquent, "loser")
+}else 
+cosole.log (memberNumber  + ' not found for handling Loser ')
 }
 
 
