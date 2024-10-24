@@ -183,7 +183,7 @@ function prepareInspection() {
 
 function performInspection() {
   for (var D = 0; D < ChatRoomCharacter.length; D++) {
-    if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && !ChatRoomCharacter[D].IsOwned() && (ReputationCharacterGet(ChatRoomCharacter[D], "Dominant") < 50)) {
+    if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && (ReputationCharacterGet(ChatRoomCharacter[D], "Dominant") < 50)) {
       delinquent = ChatRoomCharacter[D]
       removeClothes(delinquent, true, false)
       count++
