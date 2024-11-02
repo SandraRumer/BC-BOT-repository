@@ -6,7 +6,7 @@ if (typeof timeoutHandle === 'undefined') {
 
 // -----------------------------------------------------------------------------------------------
 
-inspectionList = [
+regionsList = [
   "ItemHead",
   "ItemHead",
   "ItemNose",
@@ -53,9 +53,9 @@ t =
     "ItemDevices"
   ]
 
-  inspectionList = [
-    
-    "ItemVulva",
+regionsList = [
+
+  "ItemVulva",
   "ItemVulva",
   "ItemVulva",
   "ItemPenis",
@@ -70,7 +70,7 @@ t =
 
 
 actionList = [
-   "TakeCare",//had/ face
+  "TakeCare",//had/ face
   "Caress", //had/ face
   "Caress",//nose 
   "Caress", //ears //
@@ -110,7 +110,7 @@ actionList = [
   "TakeCare",//arms
   "frenchKiss"
 ]
-actionList= [
+actionList = [
   "Caress", //Vulva
   "PenetrateSlow", //Vulva 
   "MasturbateItem", //"PenetrateSlow", // Vulva
@@ -121,7 +121,6 @@ actionList= [
   "Caress",  //butt
   "Spank", //butt
   "PenetrateSlow" //butt
-  
 ]
 
 s = [
@@ -163,13 +162,19 @@ function commandHandler(sender, msg) {
   } else {
     if (msg.includes("inspect")) {
       console.log("inspect")
-      prepareInspection()
-      setTimeout(function (Player) { performInspection() }, timeoutFactor * 500, Player)
+      performInspection()
+    }
+    else {
+      if (msg.includes("punish")) {
+        console.log("punishment")
+        performPunishment()
+      }
+
 
     }
+
   }
 }
-
 
 function removeClothes(char, removeUnderwear = true, removeCosplay = false) {
   target = getCharacterObject(char)
@@ -204,18 +209,17 @@ function removeClothes(char, removeUnderwear = true, removeCosplay = false) {
 }
 
 
-function prepareInspection() {
+function performInspection() {
   count = 0
+  playerList = []
   InventoryWear(Player, "LargeDildo", "ItemHandheld", "#B378E5")
-  //if (ChatRoomCharacter[D].HasVagina()) {   *** not definded ! 
-  //      InventoryRemove(ChatRoomCharacter[D],"ItemVulva")
-  // }
   ChatRoomCharacterUpdate(Player)
-
   for (var D = 0; D < ChatRoomCharacter.length; D++) {
     if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && !ChatRoomCharacter[D].IsOwned() && (ReputationCharacterGet(ChatRoomCharacter[D], "Dominant") < 89)) {
       memorizeClothing(ChatRoomCharacter[D])
       delinquent = ChatRoomCharacter[D]
+      count++
+      playerList.push(ChatRoomCharacter[D])
       removeClothes(ChatRoomCharacter[D], false, false)
       ServerSend("ChatRoomChat", { Content: "Preparing  " + delinquent.Name + " for inspection ", Type: "Chat" });
       ChatRoomCharacterUpdate(delinquent)
@@ -225,71 +229,45 @@ function prepareInspection() {
     else
       console.log(ChatRoomCharacter[D].MemberNumber + " " + ChatRoomCharacter[D].Name + " couldn't inspected")
   }
+  action = 1
+  setTimeout(function (Player) { performSinglePlayer(playerList), action }, timeoutFactor * 1000, Player)
 }
 
-function performInspection() {
-  playerList = []
-  for (var D = 0; D < ChatRoomCharacter.length; D++) {
-    if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && (ReputationCharacterGet(ChatRoomCharacter[D], "Dominant") < 89)) {
-      delinquent = ChatRoomCharacter[D]
-      count++
-      playerList.push(ChatRoomCharacter[D])
-      ServerSend("ChatRoomChat", { Content: "Inspection candidate: " + ChatRoomCharacter[D].Name, Type: "Chat" });
-      //setTimeout(actionStep (delinquent, 0),800*1000)
-       //nextStep( delinquent ,0)
-      //  for (var inspectionStep = 0; inspectionStep  < inspectionList.length; inspectionStep ++)
-      //  {
-      //    timeoutHandle = setTimeout(actionStep (delinquent, inspectionStep),inspectionStep*100*1000)
 
-      //  }
-    }
-    else
-      console.log(ChatRoomCharacter[D].MemberNumber + " " + ChatRoomCharacter[D].Name + " Inspection not possible")
-  }
-  setTimeout(function (Player) { performSingleInspection(playerList) }, timeoutFactor * 1000, Player)
-}
-
-//function performSingleInspection()//
-//{
-//  conole.log("performSingleInspection function")
-//  performSingleInspection(playerList) 
-//} 
-
-function performSingleInspection(playerList) {
-console.log("performSingleInspection" + playerList.length)
+function performSinglePlayer(playerList, action) {
+  console.log("performSingleInspection" + playerList.length)
   if (playerList.length > 0) {
     actdelinquent = playerList.shift()
     removeClothes(actdelinquent, true, false)
     ChatRoomCharacterUpdate(actdelinquent)
-    ServerSend("ChatRoomChat", { Content: "Inspection is performed on:" + actdelinquent.Name, Type: "Chat" });
-     setTimeout(function (Player) { actionStep(actdelinquent, 0, playerList) }, timeoutFactor * 1000, Player)
+    ServerSend("ChatRoomChat", { Content: Player.Name + " turns towards :" + actdelinquent.Name, Type: "Chat" });
+    setTimeout(function (Player) { actionStep(actdelinquent, 0, playerList, action) }, timeoutFactor * 1000, Player)
   }
-  else
-  {
-    setTimeout(function (Player) { finishInspection() }, timeoutFactor * 6000, Player)
-    }
+  else {
+    setTimeout(function (Player) { finishAction(action) }, timeoutFactor * 6000, Player)
+  }
 }
 
 
-function actionStep(char, step, playerList) {
+function actionStep(char, step, playerList, action) {
   console.log(step)
-  console.log("actionStep " + playerList.length)
+  console.log("actionStep - PlayerList : " + playerList.length)
   if (char.HasPenis()) {
-    if (inspectionList[step] == "ItemVulva") {
+    if (regionsList[step] == "ItemVulva") {
       step++
-      nextStep(char, step, playerList)
+      nextStep(char, step, playerList, action)
       return
     }
   }
   if (char.HasVagina()) {
-    if (inspectionList[step] == "ItemPenis") {
+    if (regionsList[step] == "ItemPenis") {
       step++
-      nextStep(char, step, playerList)
+      nextStep(char, step, playerList,action)
       return
     }
   }
-  targetGroup = ActivityGetGroupOrMirror(char.AssetFamily, inspectionList[step])
-  activity = ActivityAllowedForGroup(char, inspectionList[step]).find(function (obj) {
+  targetGroup = ActivityGetGroupOrMirror(char.AssetFamily, regionsList[step])
+  activity = ActivityAllowedForGroup(char, regionsList[step]).find(function (obj) {
     return obj.Activity.Name == actionList[step];
   })
   console.log(targetGroup)
@@ -299,28 +277,60 @@ function actionStep(char, step, playerList) {
   else
     ActivityRun(Player, char, targetGroup, activity)
   step++
-  nextStep(char, step,playerList)
+  nextStep(char, step, playerList, action)
 }
 
-function nextStep(delinquent, step, playerList) {
+function nextStep(delinquent, step, playerList, action) {
   clearTimeout(timeoutHandle)
-  if (step >= inspectionList.length)
-    //timeoutHandle = setTimeout(finishInspection(delinquent), 8000*1000)
-    setTimeout(function (Player) { finishSingleInspection(delinquent, playerList) }, timeoutFactor * 1500, Player)
+  if (step >= regionsList.length)
+    setTimeout(function (Player) { finishSingleAction(delinquent, playerList, action) }, timeoutFactor * 1500, Player)
   else {
-    //timeoutHandle = setTimeout(actionStep (delinquent, step),100*1000)
-    setTimeout(function (Player) { actionStep(delinquent, step, playerList) }, timeoutFactor * 1000, Player)
+    setTimeout(function (Player) { actionStep(delinquent, step, playerList, action) }, timeoutFactor * 1000, Player)
   }
 }
-function finishSingleInspection(char,playerList) {
-  console.log("finish")
-  ServerSend("ChatRoomChat", { Content: "Inspection of   " + char.Name + " is over ", Type: "Chat" });
-  ServerSend("ChatRoomChat", { Content: `No hidden weapon, drugs or explosive found!`, Type: "Chat" });
-  ServerSend("ChatRoomChat", { Content: `Well done`, Type: "Chat", Target: char.MemberNumber });
-  reapplyClothing(char)
-  performSingleInspection(playerList)
+function finishSingleAction(char, playerList, action) {
+  console.log("finish - Action : "+ action )
+  if (action == 1) {
+    ServerSend("ChatRoomChat", { Content: "Inspection of   " + char.Name + " is over ", Type: "Chat" });
+    ServerSend("ChatRoomChat", { Content: `No hidden weapon, drugs or explosive found!`, Type: "Chat" });
+    ServerSend("ChatRoomChat", { Content: `Well done`, Type: "Chat", Target: char.MemberNumber });
+    reapplyClothing(char)
+    performSinglePlayer(playerList, 1)
   }
-function finishInspection() {
+  if (action == 2) {
+    ServerSend("ChatRoomChat", { Content: "Punishment of " + char.Name + " is done ", Type: "Chat" });
+    //reapplyClothing(char)
+    performSinglePlayer(playerList, 2)
+  }
+}
+
+
+function finishAction(action) {
   InventoryRemove(Player, "ItemHandheld")
-  ServerSend("ChatRoomChat", { Content: "Inspection of all slaves is over ", Type: "Chat" });
+  ServerSend("ChatRoomChat", { Content: "Done.", Type: "Chat" });
+}
+
+
+function performPunishment() {
+  count = 0
+  playerList = []
+  InventoryWear(Player, "LargeDildo", "ItemHandheld", "#B378E5")
+  ChatRoomCharacterUpdate(Player)
+  for (var D = 0; D < ChatRoomCharacter.length; D++) {
+    if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && !ChatRoomCharacter[D].IsOwned() && (ReputationCharacterGet(ChatRoomCharacter[D], "Dominant") < 89)) {
+      memorizeClothing(ChatRoomCharacter[D])
+      delinquent = ChatRoomCharacter[D]
+      count++
+      playerList.push(ChatRoomCharacter[D])
+      removeClothes(ChatRoomCharacter[D], false, false)
+      ServerSend("ChatRoomChat", { Content: "Preparing  " + delinquent.Name + " for punishment ", Type: "Chat" });
+      ChatRoomCharacterUpdate(delinquent)
+      count++
+      ServerSend("ChatRoomChat", { Content: delinquent.Name + " you must be bound and naked for punishment.", Type: "Chat", Target: delinquent.MemberNumber });
+    }
+    else
+      console.log(ChatRoomCharacter[D].MemberNumber + " " + ChatRoomCharacter[D].Name + " couldn't punished")
+  }
+  action = 2
+  setTimeout(function (Player) { performSinglePlayer(playerList, action) }, timeoutFactor * 1000, Player)
 }
