@@ -6,7 +6,7 @@ if (typeof timeoutHandle === 'undefined') {
 
 // -----------------------------------------------------------------------------------------------
 
-regionsList = [
+regionsList [1] = [
   "ItemHead",
   "ItemHead",
   "ItemNose",
@@ -47,6 +47,50 @@ regionsList = [
   "ItemBoots",
   "ItemMouth"
 ]
+
+regionsList [2] = [
+  "ItemHead",
+  "ItemHead",
+  "ItemNose",
+  "ItemEars",
+  "ItemEars",
+  "ItemMouth",
+  "ItemMouth",
+  "ItemMouth",
+  "ItemNeck",
+  "ItemNeck",
+  "ItemBreast",
+  "ItemNipples",
+  "ItemNipples",
+  "ItemArms",
+  "ItemArms",
+  "ItemHands",
+  "ItemTorso",
+  "ItemTorso2",
+  "ItemPelvis",
+  "ItemVulva",
+  "ItemVulva",
+  "ItemVulva",
+  "ItemPenis",
+  "ItemVulvaPiercings",
+  "ItemVulvaPiercings",
+  "ItemVulvaPiercings",
+  "ItemButt",
+  "ItemButt",
+  "ItemButt",
+  "ItemLegs",
+  "ItemFeet",
+  "ItemFeet",
+  "ItemFeet",
+  "ItemBoots",
+  "ItemBoots",
+  "ItemBoots",
+  "ItemHands",
+  "ItemBoots",
+  "ItemMouth"
+]
+
+
 t =
   [
     "ItemNipplesPiercings",
@@ -69,7 +113,7 @@ regionsList = [
 
 
 
-actionList = [
+actionList [1]= [
   "TakeCare",//had/ face
   "Caress", //had/ face
   "Caress",//nose 
@@ -110,6 +154,49 @@ actionList = [
   "TakeCare",//arms
   "frenchKiss"
 ]
+
+actionList [2]= [
+  "TakeCare",//had/ face
+  "Caress", //had/ face
+  "Caress",//nose 
+  "Caress", //ears //
+  "Whisper", //ears  "Whisper", //ears
+  "Caress",//mouth 
+  "Kiss",//mouthtodo "Kiss", //mouth
+  "PenetrateSlow", //mouth 
+  "Caress",//neck
+  "MassageHands",//neck
+  "Caress",//breast
+  "Caress",//nippls
+  "Lick",//niples
+  "Caress", //arms
+  "MassageHands",//arms
+  "Caress", //hands
+  "Caress",  //Torso
+  "MassageHands",  //Torso"MassageHands",  //Torso
+  "Caress", //Pelvis
+  "Caress", //Vulva
+  "PenetrateSlow", //Vulva 
+  "MasturbateItem", //"PenetrateSlow", // Vulva
+  "Caress", //Penis 
+  "Caress", // "PenetrateSlow", //Clitoris
+  "Slap", ////Clitoris
+  "MasturbateItem", //Clitoris
+  "Caress",  //butt
+  "Spank", //butt
+  "PenetrateSlow", //butt
+  "Caress",  //Legs
+  "Caress",  //feet
+  "Tickle",  //feet
+  "MassageHands", //feet
+  "Caress",  //boots
+  "MassageHands", //boots
+  "Tickle",  //boots
+  "TakeCare",//boots
+  "TakeCare",//arms
+  "frenchKiss"
+]
+
 actionList = [
   "Caress", //Vulva
   "PenetrateSlow", //Vulva 
@@ -230,12 +317,12 @@ function performInspection() {
       console.log(ChatRoomCharacter[D].MemberNumber + " " + ChatRoomCharacter[D].Name + " couldn't inspected")
   }
   action = 1
-  setTimeout(function (Player) { performSinglePlayer(playerList), action }, timeoutFactor * 1000, Player)
+  setTimeout(function (Player) { performSinglePlayer(playerList, action) }, timeoutFactor * 1000, Player)
 }
 
 
 function performSinglePlayer(playerList, action) {
-  console.log("performSingleInspection" + playerList.length)
+  console.log("performSinglePlayer  - Player List :" + playerList.length)
   if (playerList.length > 0) {
     actdelinquent = playerList.shift()
     removeClothes(actdelinquent, true, false)
@@ -295,34 +382,46 @@ function finishSingleAction(char, playerList, action) {
     ServerSend("ChatRoomChat", { Content: `No hidden weapon, drugs or explosive found!`, Type: "Chat" });
     ServerSend("ChatRoomChat", { Content: `Well done`, Type: "Chat", Target: char.MemberNumber });
     reapplyClothing(char)
-    performSinglePlayer(playerList, 1)
   }
   if (action == 2) {
     ServerSend("ChatRoomChat", { Content: "Punishment of " + char.Name + " is done ", Type: "Chat" });
     //reapplyClothing(char)
-    performSinglePlayer(playerList, 2)
   }
+  performSinglePlayer(playerList, action)
 }
 
 
-function finishAction(action) {
+function finish(Actionaction) {
   InventoryRemove(Player, "ItemHandheld")
   ServerSend("ChatRoomChat", { Content: "Done.", Type: "Chat" });
+  ChatRoomCharacterUpdate(Player)
 }
 
+
+function raistrainForPunishment(target)
+{dressColor = "default"
+  InventoryWear(target, "DeepthroatGag","ItemMouth",dressColor,15)
+  InventoryWear(target, "HarnessPanelGag","ItemMouth2",dressColor,16)
+  InventoryWear(target, "StitchedMuzzleGag","ItemMouth3",dressColor,15)
+  InventoryWear(target, "BoxTieArmbinder","ItemArms",dressColor,100)
+  InventoryWear(target, "SpreaderMetal","ItemFeet",dressColor)
+
+}
 
 function performPunishment() {
   count = 0
   playerList = []
-  InventoryWear(Player, "LargeDildo", "ItemHandheld", "#B378E5")
+  InventoryWear(Player, "Whip", "ItemHandheld", "#B378E5")
   ChatRoomCharacterUpdate(Player)
   for (var D = 0; D < ChatRoomCharacter.length; D++) {
-    if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && !ChatRoomCharacter[D].IsOwned() && (ReputationCharacterGet(ChatRoomCharacter[D], "Dominant") < 89)) {
+    //if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && !ChatRoomCharacter[D].IsOwned() && (ReputationCharacterGet(ChatRoomCharacter[D], "Dominant") < 89)) {
+      if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && !ChatRoomCharacter[D].IsOwned() ){
       memorizeClothing(ChatRoomCharacter[D])
       delinquent = ChatRoomCharacter[D]
       count++
       playerList.push(ChatRoomCharacter[D])
       removeClothes(ChatRoomCharacter[D], false, false)
+      raistrainForPunishment(ChatRoomCharacter[D])
       ServerSend("ChatRoomChat", { Content: "Preparing  " + delinquent.Name + " for punishment ", Type: "Chat" });
       ChatRoomCharacterUpdate(delinquent)
       count++
