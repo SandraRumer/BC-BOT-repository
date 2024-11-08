@@ -171,10 +171,10 @@ actionListprep[2] = [
   "Kiss",//mouthtodo "Kiss", //mouth
   //"PenetrateSlow", //mouth 
   "Choke",//neck
-  "MassageHands",//neck
+  "Bite",//neck
   "SpankItem",//breast
-  "Caress",//nippls
-  "Lick",//niples
+  "Bite",//nippls
+  "Suck",//niples
   "SpankItem", //arms
   "MassageHands",//arms
   "Caress", //hands
