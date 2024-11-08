@@ -5,8 +5,12 @@ if (typeof timeoutHandle === 'undefined') {
 
 
 // -----------------------------------------------------------------------------------------------
-
-regionsList [1] = [
+inspection = 1
+punishment = 2 
+debug = false
+regionsListprep = []
+actionListprep  = []
+regionsListprep[1] = [
   "ItemHead",
   "ItemHead",
   "ItemNose",
@@ -48,7 +52,7 @@ regionsList [1] = [
   "ItemMouth"
 ]
 
-regionsList [2] = [
+regionsListprep[2] = [
   "ItemHead",
   "ItemHead",
   "ItemNose",
@@ -56,7 +60,7 @@ regionsList [2] = [
   "ItemEars",
   "ItemMouth",
   "ItemMouth",
-  "ItemMouth",
+  //"ItemMouth",
   "ItemNeck",
   "ItemNeck",
   "ItemBreast",
@@ -87,7 +91,9 @@ regionsList [2] = [
   "ItemBoots",
   "ItemHands",
   "ItemBoots",
+  "ItemNeck",
   "ItemMouth"
+  
 ]
 
 
@@ -98,7 +104,6 @@ t =
   ]
 
 regionsList = [
-
   "ItemVulva",
   "ItemVulva",
   "ItemVulva",
@@ -113,10 +118,11 @@ regionsList = [
 
 
 
-actionList [1]= [
+actionListprep[1] = [
   "TakeCare",//had/ face
   "Caress", //had/ face
   "Caress",//nose 
+  "TickleItem",//nose 
   "Caress", //ears //
   "Whisper", //ears  "Whisper", //ears
   "Caress",//mouth 
@@ -155,21 +161,21 @@ actionList [1]= [
   "frenchKiss"
 ]
 
-actionList [2]= [
-  "TakeCare",//had/ face
-  "Caress", //had/ face
-  "Caress",//nose 
-  "Caress", //ears //
+actionListprep[2] = [
+  "Slap",//had/ face
+  "LSCG_Bap", //had/ face
+  "Choke",//nose 
+  "Bite", //ears //
   "Whisper", //ears  "Whisper", //ears
-  "Caress",//mouth 
+  "BiteLips",//mouth 
   "Kiss",//mouthtodo "Kiss", //mouth
-  "PenetrateSlow", //mouth 
-  "Caress",//neck
+  //"PenetrateSlow", //mouth 
+  "Choke",//neck
   "MassageHands",//neck
-  "Caress",//breast
+  "SpankItem",//breast
   "Caress",//nippls
   "Lick",//niples
-  "Caress", //arms
+  "SpankItem", //arms
   "MassageHands",//arms
   "Caress", //hands
   "Caress",  //Torso
@@ -192,8 +198,9 @@ actionList [2]= [
   "Caress",  //boots
   "MassageHands", //boots
   "Tickle",  //boots
-  "TakeCare",//boots
+  "SpankItem",//boots
   "TakeCare",//arms
+  "LSCG_ReleaseNeck", // NECK Release
   "frenchKiss"
 ]
 
@@ -298,6 +305,15 @@ function removeClothes(char, removeUnderwear = true, removeCosplay = false) {
 
 function performInspection() {
   count = 0
+  if (!debug)
+    {
+    actionList =  actionList[inspection]
+    regionsList = regionsList[inspection]
+    console.log("real Inspectiont "+ inspection)
+  }
+    else console.log("Inspection  in debug mode")
+  
+  
   playerList = []
   InventoryWear(Player, "LargeDildo", "ItemHandheld", "#B378E5")
   ChatRoomCharacterUpdate(Player)
@@ -327,11 +343,11 @@ function performSinglePlayer(playerList, action) {
     actdelinquent = playerList.shift()
     removeClothes(actdelinquent, true, false)
     ChatRoomCharacterUpdate(actdelinquent)
-    ServerSend("ChatRoomChat", { Content: Player.Name + " turns towards :" + actdelinquent.Name, Type: "Chat" });
+    ServerSend("ChatRoomChat", { Content: Player.Name + " turns towards: " + actdelinquent.Name, Type: "Chat" });
     setTimeout(function (Player) { actionStep(actdelinquent, 0, playerList, action) }, timeoutFactor * 1000, Player)
   }
   else {
-    setTimeout(function (Player) { finishAction(action) }, timeoutFactor * 6000, Player)
+    setTimeout(function (Player) { finish(action) }, timeoutFactor * 6000, Player)
   }
 }
 
@@ -349,7 +365,7 @@ function actionStep(char, step, playerList, action) {
   if (char.HasVagina()) {
     if (regionsList[step] == "ItemPenis") {
       step++
-      nextStep(char, step, playerList,action)
+      nextStep(char, step, playerList, action)
       return
     }
   }
@@ -376,7 +392,7 @@ function nextStep(delinquent, step, playerList, action) {
   }
 }
 function finishSingleAction(char, playerList, action) {
-  console.log("finish - Action : "+ action )
+  console.log("finish - Action : " + action)
   if (action == 1) {
     ServerSend("ChatRoomChat", { Content: "Inspection of   " + char.Name + " is over ", Type: "Chat" });
     ServerSend("ChatRoomChat", { Content: `No hidden weapon, drugs or explosive found!`, Type: "Chat" });
@@ -391,31 +407,45 @@ function finishSingleAction(char, playerList, action) {
 }
 
 
-function finish(Actionaction) {
+function finish(action) {
   InventoryRemove(Player, "ItemHandheld")
   ServerSend("ChatRoomChat", { Content: "Done.", Type: "Chat" });
   ChatRoomCharacterUpdate(Player)
 }
 
 
-function raistrainForPunishment(target)
-{dressColor = "default"
-  InventoryWear(target, "DeepthroatGag","ItemMouth",dressColor,15)
-  InventoryWear(target, "HarnessPanelGag","ItemMouth2",dressColor,16)
-  InventoryWear(target, "StitchedMuzzleGag","ItemMouth3",dressColor,15)
-  InventoryWear(target, "BoxTieArmbinder","ItemArms",dressColor,100)
-  InventoryWear(target, "SpreaderMetal","ItemFeet",dressColor)
+function raistrainForPunishment(target) {
+  dressColor = "default"
+  InventoryWear(target, "DeepthroatGag", "ItemMouth", dressColor, 15)
+  InventoryWear(target, "HarnessPanelGag", "ItemMouth2", dressColor, 16)
+  InventoryWear(target, "StitchedMuzzleGag", "ItemMouth3", dressColor, 15)
+  InventoryWear(target, "BoxTieArmbinder", "ItemArms", dressColor, 100)
+  InventoryWear(target, "SpreaderMetal", "ItemFeet", dressColor)
 
 }
 
 function performPunishment() {
   count = 0
+  if (!debug )
+  {
+    for (i = 0; i < actionListprep[punishment].length; i++) {
+      actionList[i] = actionListprep[punishment][i];
+    }
+  //actionList =  actionList[punishment]
+//  regionsList = regionsList[punishment]
+  for (i = 0; i < regionsListprep[punishment].length; i++) {
+    regionsList[i] = regionsListprep[punishment][i];
+  }
+  console.log("realPunishment" + punishment)
+}
+  else console.log("Punishment in debug mode")
+
   playerList = []
   InventoryWear(Player, "Whip", "ItemHandheld", "#B378E5")
   ChatRoomCharacterUpdate(Player)
   for (var D = 0; D < ChatRoomCharacter.length; D++) {
     //if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && !ChatRoomCharacter[D].IsOwned() && (ReputationCharacterGet(ChatRoomCharacter[D], "Dominant") < 89)) {
-      if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && !ChatRoomCharacter[D].IsOwned() ){
+    if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && !ChatRoomCharacter[D].IsOwned()) {
       memorizeClothing(ChatRoomCharacter[D])
       delinquent = ChatRoomCharacter[D]
       count++

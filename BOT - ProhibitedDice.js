@@ -348,6 +348,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         }
         if (SenderCharacter.MemberNumber in customerList) {
           notPlaying = false
+          mess = mess + nl + "Your actual role is  " + customerList[SenderCharacter.MemberNumber].role  + `!`;
           if (customerList[SenderCharacter.MemberNumber].isPlayer && customerList[SenderCharacter.MemberNumber].round == game.round && customerList[SenderCharacter.MemberNumber].chips > 0) {
             mess = mess + nl + "You are playing in round " + customerList[SenderCharacter.MemberNumber].round + nl
             if (customerList[SenderCharacter.MemberNumber].dice > 0) {
@@ -359,7 +360,6 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
               if (customerList[oppNumber].isPlayer)
                 mess = mess + customerList[oppNumber].name + "  " + customerList[oppNumber].dice + nl
             }
-
           }
           else {
             mess = mess + nl + `You are not playing`;
@@ -794,7 +794,7 @@ function checkParticipant(char) {
         } else {
           newCustomer(char)
           ServerSend("ChatRoomChat", { Content: "*[RULES: Check " + Player.Name + " BIO to see all the rules and commands. Have fun.]", Type: "Emote", Target: char.MemberNumber });
-          ServerSend("ChatRoomChat", { Content: "*[You can leave with the command #leave. But you will receive a small punishment for doing so (mistress lock timer = 5 min)]", Type: "Emote", Target: char.MemberNumber });
+          //ServerSend("ChatRoomChat", { Content: "*[You can leave with the command #leave. But you will receive a small punishment for doing so (mistress lock timer = 5 min)]", Type: "Emote", Target: char.MemberNumber });
           customerList[char.MemberNumber].linkedTo = 0
           customerList[char.MemberNumber].isPlayer = false
         }
@@ -931,7 +931,9 @@ function resetGame() {
   for (memberNumber in customerList) {
     loserhandled = loserhandled || customerList[memberNumber].beingPunished
   }
-
+  for (memberNumber in watcherList) {
+    loserhandled = loserhandled || watcherList[memberNumber].beingPunished
+  }
   if (!loserhandled) {
     // clearTimeout(timeCheckHandle)
     game.status = "off"
@@ -1477,13 +1479,8 @@ function handleLoser(memberNumber) {
   memberName = " "
   if (delinquent != null) {
     memberName = delinquent.Name
-    ServerSend("ChatRoomChat", { Content: "Poor " + memberName + "! Your fate is certain ! ", Type: "Chat" });
-    //prepareWatcher (delinquent)
-    //ChatRoomAdminChatAction("Move",delinquent.memberNumber,1)
-    ServerSend("ChatRoomChat", { Content: memberName + ", You lost everything. ", Type: "Chat" });
+  ServerSend("ChatRoomChat", { Content: "Poor " + memberName + "! His fate is certain ! ", Type: "Chat" });
     ServerSend("ChatRoomChat", { Content: memberName + ", Now you will pay with your freedom. Your enslavement starts now", Type: "Whisper", Target: delinquent.MemberNumber });
-    // ServerSend("ChatRoomChat", { Content: "For complete submission, you loose all  money, too. " + ChatRoomCharacter[D].Money + " transfered", Type: "Chat", Target : ChatRoomCharacter[D].MemberNumber} );
-    //InventoryGet(C, C.FocusGroup.Name)
     targetGroup = ActivityGetGroupOrMirror(Player.AssetFamily, "ItemBoots")
     activity = ActivityAllowedForGroup(Player, "ItemBoots").find(function (obj) {
       return obj.Activity.Name == "Tickle";
@@ -1492,22 +1489,6 @@ function handleLoser(memberNumber) {
     customerList[memberNumber].role = "loser"
     console.log(delinquent.Name + " gets enslaved")
 
-    //delAmount = Number(delinquent.Money)
-    //payerAmount = Number(Player.Money)
-    //console.log(delinquent.Name + " " + delinquent.Money + "-" + delAmount)
-    //console.log(Player.Name + " " + Player.Money)
-
-    // Player.Money =  Player.Money + Number(ChatRoomCharacter.Money)
-    // Amount = Number(delinquent[D].Money)
-    //AddMoney(Amount) 
-    // CharacterChangeMoney(Player, Amount)
-    //ServerSend("ChatRoomChat", { Content: delinquent.Name + " pay the tribute, " + Amount + " $", Type: "Whisper", Target: Player.MemberNumber} );
-    //Since 42 is the answer for everything
-    // CharacterChangeMoney(delinquent[D], 42)
-    //ChatRoomCharacter[D].Money = "3"
-    //console.log("-----after grabbing Money which is not allowed by framework ----------")
-    //console.log(delinquent[D].Name + " " + delinquent[D].Money)
-    // console.log(Player.Name + " " + Player.Money)
     if (memberNumber in customerList) {
       newWatcher(delinquent)
       delete customerList[memberNumber]
