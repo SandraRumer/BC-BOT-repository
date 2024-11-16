@@ -1,15 +1,22 @@
 
+
 if (typeof timeoutHandle === 'undefined') {
   var timeoutHandle
 }
 
 
 // -----------------------------------------------------------------------------------------------
+  dressColor = "default"
+  dressSandraColor = "#DD8888"
+
+modeList = []
 inspection = 1
-punishment = 2 
+punishment = 2
+modeList[inspection] = "inspection"
+modeList[punishment] = "punishment"
 debug = false
 regionsListprep = []
-actionListprep  = []
+actionListprep = []
 regionsListprep[1] = [
   "ItemHead",
   "ItemHead",
@@ -27,13 +34,13 @@ regionsListprep[1] = [
   "ItemArms",
   "ItemArms",
   "ItemHands",
-   "ItemTorso",
+  "ItemTorso",
   "ItemTorso2",
   "ItemPelvis",
   "ItemVulva",
   "ItemVulva",
   "ItemVulva",
-//  "ItemPenis",
+  //  "ItemPenis",
   "ItemVulvaPiercings",
   "ItemVulvaPiercings",
   "ItemVulvaPiercings",
@@ -86,7 +93,7 @@ regionsListprep[2] = [
   "ItemBoots",
   "ItemNeck",
   "ItemMouth"
-  
+
 ]
 
 
@@ -96,15 +103,15 @@ t =
     "ItemDevices",
 
     "ItemVulva",
-  "ItemVulva",
-  "ItemVulva",
-  "ItemPenis",
-  "ItemVulvaPiercings",
-  "ItemVulvaPiercings",
-  "ItemVulvaPiercings",
-  "ItemButt",
-  "ItemButt",
-  "ItemButt"
+    "ItemVulva",
+    "ItemVulva",
+    "ItemPenis",
+    "ItemVulvaPiercings",
+    "ItemVulvaPiercings",
+    "ItemVulvaPiercings",
+    "ItemButt",
+    "ItemButt",
+    "ItemButt"
   ]
 
 regionsList = [
@@ -196,12 +203,12 @@ actionListprep[2] = [
 
 actionList = [
   "Slap", //ear
-"Kiss"  
+  "Kiss"
 ]
 
 s = [
   "Spank", "Tickle", "Caress", "Caress",
-"PenetrateSlow", //Vulva 
+  "PenetrateSlow", //Vulva 
   "MasturbateItem", //"PenetrateSlow", // Vulva
   "Caress", //Penis 
   "Caress", // "PenetrateSlow", //Clitoris
@@ -210,7 +217,7 @@ s = [
   "Caress",  //butt
   "Spank", //butt
   "PenetrateSlow" //butt
-  ]
+]
 timeoutFactor = 30
 timeoutFactor = 5
 ChatRoomMessageAdditionDict["Inspection"] = function (SenderCharacter, msg, data) { ChatRoomMessageInspection(SenderCharacter, msg, data) }
@@ -296,23 +303,23 @@ function removeClothes(char, removeUnderwear = true, removeCosplay = false) {
 
 
 function performInspection() {
-  count = 0
-  if (!debug)
-  {
-    actionList.splice(0,actionList.length);    
-    regionsList.splice(0,regionsList.length);    
-     for (i = 0; i < actionListprep[inspection].length; i++) {
-      actionList[i] = actionListprep[inspection][i];
-    }
+   count = 0
+  // if (!debug) {
+  //   actionList.splice(0, actionList.length);
+  //   regionsList.splice(0, regionsList.length);
+  //   for (i = 0; i < actionListprep[inspection].length; i++) {
+  //     actionList[i] = actionListprep[inspection][i];
+  //   }
 
-  for (i = 0; i < regionsListprep[inspection].length; i++) {
-    regionsList[i] = regionsListprep[inspection][i];
-  }
-  console.log("real Inspection id: "+ inspection)
-  }
-    else console.log("Inspection  in debug mode")
-  
-  
+  //   for (i = 0; i < regionsListprep[inspection].length; i++) {
+  //     regionsList[i] = regionsListprep[inspection][i];
+  //   }
+  //   console.log("real Inspection id: " + inspection)
+  // }
+  // else console.log("Inspection  in debug mode")
+
+  prepareGlobalLists(inspection)
+
   playerList = []
   InventoryWear(Player, "LargeDildo", "ItemHandheld", "#B378E5")
   ChatRoomCharacterUpdate(Player)
@@ -323,6 +330,18 @@ function performInspection() {
       count++
       playerList.push(ChatRoomCharacter[D])
       InventoryRemove(ChatRoomCharacter[D], "ItemHandheld")
+      removeRestrains(ChatRoomCharacter[D])
+      
+          // the "halsband"
+          //if (!sender.IsOwned()) {
+            InventoryWear(ChatRoomCharacter[D], "LeatherChoker", "ItemNeck", ["Default", "#000000"], 50)
+            //only if it is allowed to 
+            //InventoryLock(sender, InventoryGet(sender, "ItemNeck"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
+            //InventoryGet(sender, "ItemNeck").Property.CombinationNumber = customerList[sender.MemberNumber].lockCode
+          //}
+             InventoryWear(ChatRoomCharacter[D], "CollarChainLong", "ItemNeckRestraints", "Service Bot's - Sub Holder", 50)
+          //InventoryLock(sender, InventoryGet(sender, "ItemNeckRestraints"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
+          //InventoryGet(sender, "ItemNeckRestraints").Property.CombinationNumber = customerList[sender.MemberNumber].lockCode
       removeClothes(ChatRoomCharacter[D], false, false)
       ServerSend("ChatRoomChat", { Content: "Preparing  " + delinquent.Name + " for inspection ", Type: "Chat" });
       ChatRoomCharacterUpdate(delinquent)
@@ -333,7 +352,8 @@ function performInspection() {
       console.log(ChatRoomCharacter[D].MemberNumber + " " + ChatRoomCharacter[D].Name + " couldn't inspected")
     console.log(ChatRoomCharacter[D].MemberNumber + " " + ChatRoomCharacter[D].Name + " checked")
   }
-  action = 1
+  action = inspection
+  updateRoom(true,true)
   setTimeout(function (Player) { performSinglePlayer(playerList, action) }, timeoutFactor * 1000, Player)
 }
 
@@ -343,6 +363,8 @@ function performSinglePlayer(playerList, action) {
   if (playerList.length > 0) {
     actdelinquent = playerList.shift()
     removeClothes(actdelinquent, true, false)
+    //InventoryWear(target, "StuddedBlindfold", "ItemHead", dressSandraColor, 15)
+    InventoryWear(target, "PattedBlindfold", "ItemHead", dressSandraColor, 15)
     ChatRoomCharacterUpdate(actdelinquent)
     ServerSend("ChatRoomChat", { Content: Player.Name + " turns towards: " + actdelinquent.Name, Type: "Chat" });
     setTimeout(function (Player) { actionStep(actdelinquent, 0, playerList, action) }, timeoutFactor * 1000, Player)
@@ -395,7 +417,7 @@ function nextStep(delinquent, step, playerList, action) {
 function finishSingleAction(char, playerList, action) {
   console.log("finish - Action : " + action)
   if (action == 1) {
- 
+
     ServerSend("ChatRoomChat", { Content: "Inspection of   " + char.Name + " is over ", Type: "Chat" });
     ServerSend("ChatRoomChat", { Content: `No hidden weapon, drugs or explosive found!`, Type: "Chat" });
     ServerSend("ChatRoomChat", { Content: `Well done`, Type: "Chat", Target: char.MemberNumber });
@@ -406,53 +428,57 @@ function finishSingleAction(char, playerList, action) {
     //reapplyClothing(char)
   }
   InventoryRemove(char, "ItemHead")
+  ChatRoomCharacterUpdate(char)
   performSinglePlayer(playerList, action)
 }
 
 
 function finish(action) {
-  
+
   InventoryRemove(Player, "ItemHandheld")
-   ServerSend("ChatRoomChat", { Content: "Done.", Type: "Chat" });
+  ServerSend("ChatRoomChat", { Content: "Done.", Type: "Chat" });
   ChatRoomCharacterUpdate(Player)
+  updateRoom (true, false)
 }
 
 
 function raistrainForPunishment(target) {
-  dressColor = "default"
-dressSandraColor = "#DD8888"
   InventoryWear(target, "DeepthroatGag", "ItemMouth", dressSandraColor, 15)
   //InventoryWear(target, "HarnessPanelGag", "ItemMouth2", dressColor, 16)
   //InventoryWear(target, "StitchedMuzzleGag", "ItemMouth3", dressColor, 15)
   InventoryWear(target, "Yoke", "ItemArms", dressColor, 100)
   InventoryWear(target, "SpreaderMetal", "ItemFeet", dressColor)
   //InventoryWear(target, "FullBlindfold", "ItemHead", dressSandraColor, 15)
-  InventoryWear(target, "StuddedBlindfold", "ItemHead", dressSandraColor, 15)
+  
+}
 
+function prepareGlobalLists(mode) {
+  console.log("preparing Global Lists with: " + mode)
+
+  if (!debug) {
+    actionList = []
+    regionsList = []
+
+    for (i = 0; i < actionListprep[mode].length; i++) {
+      actionList[i] = actionListprep[mode][i];
+    }
+    for (i = 0; i < regionsListprep[mode].length; i++) {
+      regionsList[i] = regionsListprep[mode][i];
+    }
+    console.log(modeList[mode] + " mode :" + mode)
+  }
+  else console.log(modeList[mode] + " in debug mode")
 }
 
 function performPunishment() {
   count = 0
-  if (!debug )
-  {
-    for (i = 0; i < actionListprep[punishment].length; i++) {
-      actionList[i] = actionListprep[punishment][i];
-    }
-  //actionList =  actionList[punishment]
-//  regionsList = regionsList[punishment]
-  for (i = 0; i < regionsListprep[punishment].length; i++) {
-    regionsList[i] = regionsListprep[punishment][i];
-  }
-  console.log("realPunishment" + punishment)
-}
-  else console.log("Punishment in debug mode")
-
+  prepareGlobalLists(punishment)
   playerList = []
   InventoryWear(Player, "Whip", "ItemHandheld", "#B378E5")
   ChatRoomCharacterUpdate(Player)
   for (var D = 0; D < ChatRoomCharacter.length; D++) {
     //if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber && !ChatRoomCharacter[D].IsOwned() && (ReputationCharacterGet(ChatRoomCharacter[D], "Dominant") < 89)) {
-    if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber ) {
+    if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber) {
       memorizeClothing(ChatRoomCharacter[D])
       delinquent = ChatRoomCharacter[D]
       count++
@@ -466,8 +492,47 @@ function performPunishment() {
     }
     else
       console.log(ChatRoomCharacter[D].MemberNumber + " " + ChatRoomCharacter[D].Name + " couldn't punished")
-      console.log(ChatRoomCharacter[D].MemberNumber + " " + ChatRoomCharacter[D].Name + " checked")
+    console.log(ChatRoomCharacter[D].MemberNumber + " " + ChatRoomCharacter[D].Name + " checked")
   }
-  action = 2
+  action = punishment
+  updateRoom(true,true)
   setTimeout(function (Player) { performSinglePlayer(playerList, action) }, timeoutFactor * 1000, Player)
+}
+function freeAll ()
+{for (var D = 0; D < ChatRoomCharacter.length; D++) {
+  if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber) {
+    removeRestrains(ChatRoomCharacter[D])
+     reapplyClothing(ChatRoomCharacter[D])
+  }
+}
+}
+
+function updateRoom (private, lock)
+{RoomName = "Inspection Institute"
+  RoomDescription = "to inspect, punish or humiliate"
+  // -----------------------------------------------------------------------------
+  // Update Room Data
+  if (ChatRoomData != null) 
+  {
+  ChatRoomData.Background = "PrisonHall"
+  ChatRoomData.Name = RoomName
+  ChatRoomData.Description = RoomDescription
+  
+    // Update room
+    var UpdatedRoom = {
+      Name: ChatRoomData.Name,
+      Description: ChatRoomData.Description,
+      Background: ChatRoomData.Background,
+      Limit: (10),
+      Admin: ChatRoomData.Admin,
+      Ban: ChatRoomData.Ban,
+      Private: private,
+      Locked: lock,
+      Language: "EN"
+    };
+    ServerSend("ChatRoomAdmin", { MemberNumber: Player.ID, Room: UpdatedRoom, Action: "Update" });
+    ChatAdminMessage = "UpdatingRoom";
+  }
+  
+
 }
