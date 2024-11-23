@@ -600,3 +600,41 @@ function InventoryBlockedOrLimitedCustomized(C, ItemAsset, ItemType) {
 	let Limited = !InventoryCheckLimitedPermission(C, Item, ItemType);
 	return Blocked || Limited;
 }
+
+
+function updateRoom(roomName, roomDescription, background, private, lock) {
+	// Update Room Data
+	if (ChatRoomData != null) {
+		if (background != "")
+
+			ChatRoomData.Background = background
+		else
+			ChatRoomData.Background = "PrisonHall"
+		ChatRoomData.Name = roomName
+		ChatRoomData.Description = roomDescription
+
+		// Update room
+		var UpdatedRoom = {
+			Name: ChatRoomData.Name,
+			Description: ChatRoomData.Description,
+			Background: ChatRoomData.Background,
+			Limit: (10),
+			Admin: ChatRoomData.Admin,
+			Ban: ChatRoomData.Ban,
+			Private: private,
+			Locked: lock,
+			Language: "EN"
+		};
+		ServerSend("ChatRoomAdmin", { MemberNumber: Player.ID, Room: UpdatedRoom, Action: "Update" });
+		ChatAdminMessage = "UpdatingRoom";
+	}
+
+
+}
+
+function timestamp(aCertainDate) {
+	timeStamp = aCertainDate.getDay() + '.' + aCertainDate.getMonth() + '.' + aCertainDate.getFullYear()
+	timeStamp = timeStamp + ' ' + aCertainDate.getHours() + ':' + aCertainDate.getMinutes()
+
+	return timeStamp
+}

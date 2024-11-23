@@ -1,5 +1,10 @@
+initDescription = Player.Description
+
 RoomName = "Prohibited Dice"
 RoomDescription = "Here you can play prohibited and non consent dice games. Read the bot profile for instructions!"
+RoomBackground = "SecretChamber"
+
+
 // Dicing challenges
 // -----------------------------------------------------------------------------
 // Update Room Data
@@ -13,8 +18,8 @@ minimumParticipants = 2
 requestDict = {}
 domWinReward = 5
 subToDom = 2
-enslavement = -2
-winningSteps = 8
+enslavement = -3
+winningSteps = 3
 watcherRelease = 10
 // new line in chat - BEGIN
 nl = `
@@ -23,18 +28,18 @@ nl = `
 
 
 Player.Description = `
-....... automated ServiceBot model "Dice gambler" 0.8.9 .......
+....... automated ServiceBot model "Dice gambler" 0.8.9.1 .......
       Dicing Game
       ===========
       Overview for COMMANDS: all commands starts with #
 If you are gagged, you can use OOC (#. 
 But be careful, it may be punished.
       
-#leave - If you are not already enslaved, you will be restrained with a mistress timer padklock (5 mins) and kicked out of the room.
-      #info - Shows your gaming status.
+#leave - If you are not already enslaved, you will be restrained with a timer padlock (5 mins) and kicked out of the room.
+#info - shows your gaming status.
       #play - signal your will to play
       #start -  request the start if there are enough player .
-#watch - *Danger* To watch the game restraint and quite without interaction. *Danger*
+#watch - *Danger* to watch the game without interaction. *Danger*
 
 ----- dicing with the right dices  -------
       /dice 100 - the correct diceing command. 
@@ -43,8 +48,8 @@ other dices will be punished
       
       Purpose
       ------------------
-      In this game we dicing for a winner. Winner is that player who remain untied in the end.
-We need in minimum `  + minimumParticipants + ` player. Me, the ServiceBot, is not counted, since i am the referee.
+In this game we dicing for a winner. Winner is the player who remain untied in the end.
+We need in minimum `  + minimumParticipants + ` player. I am the referee.
       DO NOT TOUCH THE ServiceBot!  NEVER EVER!
       
       Preparation 
@@ -71,11 +76,10 @@ After all Player are ready start to rumble. Anyone can request the start of game
       ------------------------
       During a game new customers can't participate. They have to wait until the bot is ready for the next game.
 
-
      Watching a game 
 ------------------------
 Watching could become boring. If you want to participate, you can dice. 
-if you dice below `   + watcherRelease + `your watch ends. Your result will be noticed.
+if you dice below `   + watcherRelease + ` your watch ends. Your result will be noticed.
 Next dice must be lower.
 
       Winning a game 
@@ -86,9 +90,9 @@ Next dice must be lower.
       Rewards and horrible end
       --------------------------
       On entry players reputance decides about your role. 
-      If you are a sub you will be tied up and you can't leave anymore.
+If you are a sub you will be chained and you can't leave anymore.
 After `  + subToDom + ` victories you are promoted to dom level.
-if you win ` + domWinReward + `times in dom level you get a reward. 
+if you win ` + domWinReward + ` times in dom level you get a reward. 
       if you lost too many times ... bad luck.
       
       Have fun.
@@ -129,9 +133,38 @@ if (personMagicData.prototype.isPlayer == null) {
 }
 
 
+updateRoom(RoomName, RoomDescription , RoomBackground, false, false)
+// handling void ???
+//checkRoomForParticipants()
+
 
 ChatRoomMessageAdditionDict["EnterLeave"] = function (SenderCharacter, msg, data) { ChatRoomMessageEnterLeave(SenderCharacter, msg, data) }
+ChatRoomMessageAdditionDict["Dice"] = function (SenderCharacter, msg, data) { ChatRoomMessageListen(SenderCharacter, msg, data) }
 ChatRoomMessageAdditionDict["Dicing"] = function (SenderCharacter, msg, data) { ChatRoomMessageDice(SenderCharacter, msg, data) }
+
+
+function ChatRoomMessageListen(sender, msg, data) {
+  if (data.Type != null)
+    if (data.Type == "Chat") {
+      if (msg.startsWith("!")) {
+        commandHandler(sender, msg)
+        // not for Player
+        // ServerSend("ChatRoomChat", { Content: `*Please use whispers to send commands.`, Type: "Emote", Target: sender.MemberNumber });
+      }
+    } else if ((data.Type == "Emote") || (data.Type == "Action")) {
+      if (msg.startsWith("!")) {
+        commandHandler(sender, msg)
+      }
+    } else if (data.Type == "Whisper") {
+      if (msg.startsWith("!")) {
+        commandHandler(sender, msg)
+      }
+    } else if (data.Type == "Hidden") {
+      //console.log("Hidden message: " + msg)
+    }
+
+}
+
 
 function ChatRoomMessageEnterLeave(SenderCharacter, msg, data) {
   if ((data.Type == "Action") && (msg.startsWith("ServerEnter"))) {
@@ -286,7 +319,6 @@ function commandHandler(sender, msg) {
       console.log("inspect")
       prepareInspection()
       setTimeout(function (Player) { performInspection() }, timeoutFactor * 500, Player)
-
     }
   }
 }
@@ -329,7 +361,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
 
       if (msg.toLowerCase().includes("info")) {
         mess = "*--------------------" +
-          nl + "For Your Intrest, " + SenderCharacter.Name + `!`;
+          nl + "For Your Intrest, " + charname(SenderCharacter) + `!`;
         notPlaying = true
         if (SenderCharacter.MemberNumber in watcherList) {
           notPlaying = false
@@ -348,7 +380,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         }
         if (SenderCharacter.MemberNumber in customerList) {
           notPlaying = false
-          mess = mess + nl + "Your actual role is  " + customerList[SenderCharacter.MemberNumber].role  + `!`;
+          mess = mess + nl + "Your actual role is  " + customerList[SenderCharacter.MemberNumber].role + `!`;
           if (customerList[SenderCharacter.MemberNumber].isPlayer && customerList[SenderCharacter.MemberNumber].round == game.round && customerList[SenderCharacter.MemberNumber].chips > 0) {
             mess = mess + nl + "You are playing in round " + customerList[SenderCharacter.MemberNumber].round + nl
             if (customerList[SenderCharacter.MemberNumber].dice > 0) {
@@ -397,19 +429,15 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
           }
           else {
             console.log("another unregistered player starts to watch")
+              memorizeClothing(SenderCharacter)
+              newWatcher(SenderCharacter)
           }
         }
         else {
           ServerSend("ChatRoomChat", { Content: "*You are already watching", Type: "Emote", Target: SenderCharacter.MemberNumber });
         }
-
-
-
-
-
         checkCharacterPlace(SenderCharacter)
       }
-
       if (msg.toLowerCase().includes("play")) {
         ///??? Error if player is not in CustomerList (after crash , etc) 
         if (SenderCharacter.MemberNumber in watcherList) {
@@ -422,7 +450,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
             if (game.status == "playerSelection") {
               customerList[SenderCharacter.MemberNumber].isPlayer = true
               game.playerDict[SenderCharacter.MemberNumber] = SenderCharacter.MemberNumber
-              ServerSend("ChatRoomChat", { Content: SenderCharacter.Name + " is going to play.", Type: "Chat" });
+              ServerSend("ChatRoomChat", { Content: charname(SenderCharacter) + " is going to play.", Type: "Chat" });
               message = "Player : " + nl
               for (memberNumber in customerList) {
                 if (customerList[memberNumber].isPlayer)
@@ -439,7 +467,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
                 CharacterSetActivePose(Player, null, true);
                 ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
                 game.status = "playerSelection"
-                ServerSend("ChatRoomChat", { Content: "A new challenge! Who is gonna play with " + SenderCharacter.Name + " ?", Type: "Chat" });
+                ServerSend("ChatRoomChat", { Content: "A new challenge! Who is gonna play with " + charname(SenderCharacter) + " ?", Type: "Chat" });
                 memorizeClothing(SenderCharacter)
                 checkCharacterPlace(SenderCharacter)
                 CharacterSetActivePose(Player, "LegsClosed", true);
@@ -454,7 +482,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
           //Sender neither in Customer List nor in Watcher List 
           {
         
-            ServerSend("ChatRoomChat", { Content: "Sorry, i wasn't aware of you,  " + SenderCharacter.Name + ". Let us perform the entrance check.", Type: "Chat", Target: SenderCharacter.MemberNumber });
+            ServerSend("ChatRoomChat", { Content: "Sorry, i wasn't aware of you,  " + charname(SenderCharacter) + ". Let us perform the entrance check.", Type: "Chat", Target: SenderCharacter.MemberNumber });
             checkRoomForParticipants()
           }
         }
@@ -467,7 +495,8 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
       }
       if (msg.toLowerCase().includes("start")) {
         //game startes
-        ServerSend("ChatRoomChat", { Content: SenderCharacter.Name + " request to start .", Type: "Chat" });
+        ServerSend("ChatRoomChat", { Content: charname(SenderCharacter) + " request to start .", Type: "Chat" });
+        updateRoom(RoomName, RoomDescription , RoomBackground, true, true)
         if (game.status == "playerSelection") {
           playerCount = game.playerCount()
           if (playerCount < minimumParticipants) {
@@ -498,7 +527,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         if (SenderCharacter.MemberNumber in customerList) {
           if ((customerList[SenderCharacter.MemberNumber].totalPointsGained >= domWinReward) || (SenderCharacter.MemberNumber == "121494")) {
             if (game.status == "off" || game.status == "end") {
-              console.log("REWARD: " + SenderCharacter.Name)
+              console.log("REWARD: " + charname(SenderCharacter))
               clearTimeout(timeoutHandle)
               game.status = "reward"
               game.rewardTarget = SenderCharacter.MemberNumber
@@ -514,6 +543,18 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         }
       }
 
+      if (msg.toLowerCase().includes("status")) {
+        ServerSend("ChatRoomChat", { Content: "*You are not allowed to ask for status. I add a punishment point to your score", Type: "Whisper", Target: SenderCharacter.MemberNumber });
+
+        if (SenderCharacter.MemberNumber in watcherList) {
+          watcherList[SenderCharacter.MemberNumber].punishmentPoints++;
+        }
+        else {
+          if (SenderCharacter.MemberNumber in customerList) {
+          customerList[SenderCharacter.MemberNumber].punishmentPoints++;
+          }
+        }
+      }
 
       if ((data.Type == "Chat")) {
         if (msg.includes("info") || msg.includes("play") || msg.includes("watch") || msg.includes("reward") || msg.includes("start")) {
@@ -542,7 +583,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
           }
           else {
             ServerSend("ChatRoomChat", { Content: "Game isn't started. Remain patient or start the game!", Type: "Chat", Target: SenderCharacter.MemberNumber });
-            ServerSend("ChatRoomChat", { Content: SenderCharacter.Name + " starts dicing, but game status is " + game.status, Type: "Emote", Target: Player.MemberNumber })
+            ServerSend("ChatRoomChat", { Content: charname(SenderCharacter) + " starts dicing, but game status is " + game.status, Type: "Emote", Target: Player.MemberNumber })
           }
         }
         else {
@@ -602,7 +643,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
       } else if (game.rewardOrgasmNum == 2) {
         ServerSend("ChatRoomChat", { Content: "That was a nice one. I hope you enjoyed your reward.", Type: "Chat" });
         //ServerSend("ChatRoomChat", { Content: "You can now be freed. Your lock code is " + customerList[SenderCharacter.MemberNumber].lockCode + ".", Type: "Chat" });
-        reapplyClothing(SenderCharacter,true)  
+        reapplyClothing(SenderCharacter, true)
         game.rewardTarget = 0
         resetGame()
       }
@@ -618,13 +659,30 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         checkRoomForSigns()
       }
       if (msg.toLowerCase().includes("#release")) {
+        all = false
+        done = false
+        if (msg.toLowerCase().endsWith("all") ) {
+          all = true
+        }
+
+
         for (var D = 0; D < ChatRoomCharacter.length; D++) {
-          if (msg.toLowerCase().endsWith(ChatRoomCharacter[D].Name.toLowerCase())) {
+          if (msg.toLowerCase().endsWith(charname(ChatRoomCharacter[D]).toLowerCase()) || all) {
+             if (ChatRoomCharacter[D].MemberNumber in watcherList)
+             {
             releaseWatcher(ChatRoomCharacter[D].MemberNumber)
+            console.log("released: " + charname(ChatRoomCharacter[D]) )
           }
           else
-            console.log("no one released: ")
+            { 
+              
+              console.log("Customer released: " + charname(ChatRoomCharacter[D]) )}
+            done = true
+          }
+       
         }
+        if (! done)
+            console.log("no one released: ")
       }
       if (msg.toLowerCase().includes("#status")) {
         checkRoomForParticipants()
@@ -726,11 +784,11 @@ function increaseRound() {
 function checkKickOut(sender) {
   //if sender.isWatcher
   if (sender.IsRestrained() && !sender.CanTalk() && sender.IsKneeling() && (sender.MemberNumber in watcherList)) {
-    console.log(sender.Name + " is watching")
+    console.log(charname(sender) + " is watching")
     ServerSend("ChatRoomChat", { Content: "You are a lucky one. Be quite and have fun", Type: "Emote", Target: sender.MemberNumber });
   }
   else {
-    console.log(sender.Name + " kickout")
+    console.log(charname(sender) + " kickout")
     ServerSend("ChatRoomChat", { Content: "Change", Type: "Emote", Target: sender.MemberNumber })
     ChatRoomAdminChatAction("Kick", sender.MemberNumber.toString())
   }
@@ -739,19 +797,14 @@ function checkKickOut(sender) {
 function kickOutOrWatch(warnmsg, sender) {
   ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Emote", Target: sender.MemberNumber });
   ServerSend("ChatRoomChat", { Content: "*[You can become a quite watcher. You can whisper #watch, Otherwise you will be kicked in 30 seconds. You can change and come back if you want.]", Type: "Emote", Target: sender.MemberNumber });
-  //console.log(sender.Name + " timeout")
+  
 
   setTimeout(function (sender) { checkKickOut(sender) }, 30 * 1000, sender)
-  //console.log(sender.Name + " timeou3t")
 
-  // setTimeout(function(sender) 
-  //{  console.log("Chatroom kickout");
-  //      ChatRoomAdminChatAction("Kick", sender.MemberNumber.toString())
-  //  }, 120 *1000, sender)  
 }
 
 function enterLeaveEvent(sender, msg) {
-  if (sender.MemberNumber.toString() == Player.MemberNumber.toString()) { console.log(sender.Name + " is back") }
+  if (sender.MemberNumber.toString() == Player.MemberNumber.toString()) { console.log(charname(sender) + " is back") }
   else
     if (isExposed(sender) || sender.IsRestrained() || CharacterIsInUnderwear(sender) || sender.IsShackled() || sender.IsBlind() || !sender.CanTalk() || sender.IsEnclose() || sender.IsMounted() || sender.IsDeaf()) {
       warnmsg = "*[To play here you have to be UNRESTRAINED and fully DRESSED (check your panties too). You will be kicked in 30 seconds. You can change and comeback if you want.]"
@@ -763,7 +816,7 @@ function enterLeaveEvent(sender, msg) {
         ServerSend("ChatRoomChat", { Content: "A Game is already running. Please wait until I am ready for a new game.", Type: "Whisper", Target: sender.MemberNumber });
       }
     }
-  console.log(sender.Name + " ENTERED")
+  console.log(charname(sender) + " ENTERED")
 }
 
 function checkParticipant(char) {
@@ -793,7 +846,7 @@ function checkParticipant(char) {
           ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Emote", Target: char.MemberNumber });
         } else {
           newCustomer(char)
-          ServerSend("ChatRoomChat", { Content: "*[RULES: Check " + Player.Name + " BIO to see all the rules and commands. Have fun.]", Type: "Emote", Target: char.MemberNumber });
+          ServerSend("ChatRoomChat", { Content: "*[RULES: Check " + charname(Player) + " BIO to see all the rules and commands. Have fun.]", Type: "Emote", Target: char.MemberNumber });
           //ServerSend("ChatRoomChat", { Content: "*[You can leave with the command #leave. But you will receive a small punishment for doing so (mistress lock timer = 5 min)]", Type: "Emote", Target: char.MemberNumber });
           customerList[char.MemberNumber].linkedTo = 0
           customerList[char.MemberNumber].isPlayer = false
@@ -857,15 +910,15 @@ function stackPay(targetMemberNumber, chipsLost) {
 
 function newCustomer(sender) {
   customerList[sender.MemberNumber] = new personMagicData()
-  customerList[sender.MemberNumber].name = sender.Name
+  customerList[sender.MemberNumber].name = charname(sender)
   customerList[sender.MemberNumber].dice = 0
   customerList[sender.MemberNumber].round = 0
 
   if (ReputationCharacterGet(sender, "Dominant") < 10) {
-    ServerSend("ChatRoomChat", { Content: sender.Name + ", I am delighted that you decided to play this game. You have been chained and if you want to leave here you will have to earn your freedom.", Type: "Chat", Target: sender.MemberNumber });
+    ServerSend("ChatRoomChat", { Content: charname(sender) + ", I am delighted that you decided to play this game. You have been chained and if you want to leave here you will have to earn your freedom.", Type: "Chat", Target: sender.MemberNumber });
     customerList[sender.MemberNumber].role = 'sub'
   } else {
-    ServerSend("ChatRoomChat", { Content: "Greetings " + sender.Name + ". Welcome to that dicing game. You can relax or play if you want.", Type: "Chat", Target: sender.MemberNumber });
+    ServerSend("ChatRoomChat", { Content: "Greetings " + charname(sender) + ". Welcome to that dicing game. You can relax or play if you want.", Type: "Chat", Target: sender.MemberNumber });
     customerList[sender.MemberNumber].role = 'dom'
   }
   if (sender.MemberNumber in watcherList) {
@@ -878,11 +931,11 @@ function newCustomer(sender) {
 function newWatcher(sender) {
   memorizeClothing(sender)
   watcherList[sender.MemberNumber] = new personMagicData()
-  watcherList[sender.MemberNumber].name = sender.Name
+  watcherList[sender.MemberNumber].name = charname(sender)
   watcherList[sender.MemberNumber].dice = 0
   watcherList[sender.MemberNumber].round = 0
   watcherList[sender.MemberNumber].role = "watcher"
-  ServerSend("ChatRoomChat", { Content: sender.Name + ", you will watch. You have been chained.", Type: "Chat", Target: sender.MemberNumber });
+  ServerSend("ChatRoomChat", { Content: charname(sender) + ", you are restrained and you will watch. You may dice to come free? .", Type: "Chat", Target: sender.MemberNumber });
   if (sender.MemberNumber in customerList) {
     watcherList[sender.MemberNumber].role = customerList[sender.MemberNumber].role
     watcherList[sender.MemberNumber].punishmentPoints = customerList[sender.MemberNumber].punishmentPoints
@@ -945,6 +998,7 @@ function resetGame() {
       customerList[memberNumber].round = 0
     }
     checkRoomForParticipants()
+    updateRoom(RoomName, RoomDescription , RoomBackground, false, false)
     CharacterSetActivePose(Player, "Kneel", true);
     ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
     ServerSend("ChatRoomChat", { Content: "I am ready for a new game.", Type: "Chat" });
@@ -1010,8 +1064,8 @@ function checkCharacterPlace(char) {
     if (watcherList[memberNumber].role == "loser") {
       targetPos = loserPosition
       maxTargetPos = loserNumber - 1
-      if (maxTargetPos <0 )
-          {maxTargetPos = 0 
+      if (maxTargetPos < 0) {
+        maxTargetPos = 0
             console.log("loser Number error with " + memberNumber)
           }
       role = "loser"
@@ -1070,7 +1124,7 @@ function checkPosition() {
   watcherNumber = 0
 
   for (var D = 0; D < ChatRoomCharacter.length; D++) {
-    console.log(ChatRoomCharacter[D].memberNumber + " " + ChatRoomCharacter[D].Name)
+    console.log(ChatRoomCharacter[D].memberNumber + " " + charname(ChatRoomCharacter[D]))
     checkCharacterPlace(ChatRoomCharacter[D])
 
   }
@@ -1143,7 +1197,7 @@ function checkRoomForSigns() {
   console.log("----------------- checkRoomForSigns")
   for (var D = 0; D < ChatRoomCharacter.length; D++) {
     memberNumber = ChatRoomCharacter[D].MemberNumber
-    console.log(memberNumber + " " + ChatRoomCharacter[D].Name)
+    console.log(memberNumber + " " + charname(ChatRoomCharacter[D]))
 
     if (memberNumber == Player.MemberNumber)
       role = "bot"
@@ -1246,12 +1300,12 @@ function freeAllCustomers(reapplyCloth = false) {
           //ServerSend("ChatRoomCharacterPoseUpdate", { Pose: ChatRoomCharacter[R].ActivePose });
           if (reapplyCloth) { reapplyClothing(ChatRoomCharacter[R]) }
           ChatRoomCharacterUpdate(ChatRoomCharacter[R])
-          ServerSend("ChatRoomChat", { Content: "*Player " + ChatRoomCharacter[R].Name + " prepared for dicing.", Type: "Emote" });
+          ServerSend("ChatRoomChat", { Content: "*Player " + charname(ChatRoomCharacter[R]) + " prepared for dicing.", Type: "Emote" });
         }
       }
       else {
         //ServerSend("ChatRoomChat", { Content: "*You are unfortunately stuck and you will stay.", Type: "Whisper", Target: ChatRoomCharacter[R].MemberNumber });
-        ServerSend("ChatRoomChat", { Content: ChatRoomCharacter[R].Name + ", will stay and watch.", Type: "Chat" });
+        ServerSend("ChatRoomChat", { Content: charname(ChatRoomCharacter[R]) + ", will stay and watch.", Type: "Chat" });
       }
   }
 }
@@ -1349,17 +1403,6 @@ function winningCeremony(winnerNumber) {
   // handle Punishment points
   punishmentAll()
 }
-//function checkLooser {
-//lowest dice
-//ChatRoomChatLog.
-//Object { Chat: "/dice100", Garbled: "/dice100", Original: "/dice100", … }
-//Chat: "/dice100"​​
-//Garbled: "/dice100"​​
-//Original: "/dice100"​​
-//SenderMemberNumber: 167042​​
-//SenderName: "ServiceBot"​​
-//Time: 1717707182604
-//}
 
 
 function punishmentAll() {
@@ -1400,6 +1443,7 @@ function punishmentAll() {
   else {
     ServerSend("ChatRoomChat", { Content: "It is punishment time!", Type: "Emote" });
     InventoryWear(Player, "HeartCrop", "ItemHandheld", "#CCF6B7")
+    //punishment crop
     ChatRoomCharacterUpdate(Player)
     setTimeout(function (Player) { choosePunishment() }, Math.floor(Math.random() * 6000 + 5000, Player))
   }
@@ -1411,7 +1455,7 @@ function choosePunishment() {
     if (watcherList[memberNumber].beingPunished) {
       emptyWatcher++
       char = charFromMemberNumber(memberNumber)
-      ServerSend("ChatRoomChat", { Content: char.Name + ": " + watcherList[memberNumber].punishmentPoints + " punishmentPoints", Type: "Whisper", Target: char.MemberNumber })
+      ServerSend("ChatRoomChat", { Content: charname(char) + ": " + watcherList[memberNumber].punishmentPoints + " punishmentPoints", Type: "Whisper", Target: char.MemberNumber })
       spankCustomer(memberNumber)
       watcherList[memberNumber].punishmentPoints--
       if (watcherList[memberNumber].punishmentPoints <= 0) {
@@ -1426,7 +1470,7 @@ function choosePunishment() {
     if (customerList[memberNumber].beingPunished) {
       emptyWatcher++
       delinquent = charFromMemberNumber(memberNumber)
-      ServerSend("ChatRoomChat", { Content: delinquent.Name + ": " + customerList[memberNumber].punishmentPoints + "  stroke", Type: "Emote", Target: Player.MemberNumber })
+      ServerSend("ChatRoomChat", { Content: charname(delinquent) + ": " + customerList[memberNumber].punishmentPoints + "  stroke", Type: "Emote", Target: Player.MemberNumber })
 
       spankCustomer(memberNumber)
       customerList[memberNumber].punishmentPoints--
@@ -1454,7 +1498,7 @@ function choosePunishment() {
 function spankCustomer(memberNumber) {
   char = charFromMemberNumber(memberNumber)
   ServerSend("ChatRoomChat", { Content: "it hurts me, too", Type: "Whisper", Target: char.MemberNumber });
-  ServerSend("ChatRoomChat", { Content: "One Punishment for " + char.Name, Type: "Chat" });
+  ServerSend("ChatRoomChat", { Content: "One Punishment for " + charname(char), Type: "Chat" });
   targetGroup = ActivityGetGroupOrMirror(Player.AssetFamily, "ItemButt")
   activity = ActivityAllowedForGroup(char, "ItemButt").find(function (obj) {
     return obj.Activity.Name == "SpankItem";
@@ -1478,7 +1522,7 @@ function handleLoser(memberNumber) {
   delinquent = charFromMemberNumber(memberNumber)
   memberName = " "
   if (delinquent != null) {
-    memberName = delinquent.Name
+    memberName = charname(delinquent)
   ServerSend("ChatRoomChat", { Content: "Poor " + memberName + "! His fate is certain ! ", Type: "Chat" });
     ServerSend("ChatRoomChat", { Content: memberName + ", Now you will pay with your freedom. Your enslavement starts now", Type: "Whisper", Target: delinquent.MemberNumber });
     targetGroup = ActivityGetGroupOrMirror(Player.AssetFamily, "ItemBoots")
@@ -1487,7 +1531,7 @@ function handleLoser(memberNumber) {
     })
     ActivityRun(Player, delinquent, targetGroup, activity)
     customerList[memberNumber].role = "loser"
-    console.log(delinquent.Name + " gets enslaved")
+    console.log(charname(delinquent) + " gets enslaved")
 
     if (memberNumber in customerList) {
       newWatcher(delinquent)
@@ -1511,13 +1555,13 @@ function checkWinners() {
     if (customerList[ChatRoomCharacter[D].MemberNumber].role == "sub") {
       //enslavement
       if (customerList[ChatRoomCharacter[D].MemberNumber].totalPointsGained <= enslavement) {
-        ServerSend("ChatRoomChat", { Content: ChatRoomCharacter[D].Name + ", seems that you have nothing else to give. Bad luck!", Type: "Chat" });
+        ServerSend("ChatRoomChat", { Content: charname(ChatRoomCharacter[D]) + ", seems that you have nothing else to give. Bad luck!", Type: "Chat" });
         loserNumber = ChatRoomCharacter[D].MemberNumber
         customerList[ChatRoomCharacter[D].MemberNumber].beingPunished = true
         //loserList[D] = loserNumber      
         loserList.push(loserNumber)
       } else if (customerList[ChatRoomCharacter[D].MemberNumber].totalPointsGained >= subToDom) {
-        ServerSend("ChatRoomChat", { Content: "Congratulations " + ChatRoomCharacter[D].Name + "! You got " + subToDom + " wins. You have earned your freedom. You can leave free or you can continue playing as if you were a domme.", Type: "Chat" });
+        ServerSend("ChatRoomChat", { Content: "Congratulations " + charname(ChatRoomCharacter[D]) + "! You got " + subToDom + " wins. You have earned your freedom. You can leave free or you can continue playing as if you were a domme.", Type: "Chat" });
         ServerSend("ChatRoomChat", { Content: "(Private) Your lock code is: " + customerList[ChatRoomCharacter[D].MemberNumber].lockCode, Type: "Whisper", Target: ChatRoomCharacter[D].MemberNumber });
         customerList[ChatRoomCharacter[D].MemberNumber].isPlayer = false
         customerList[ChatRoomCharacter[D].MemberNumber].role = "dom"
@@ -1526,11 +1570,11 @@ function checkWinners() {
       }
     } else {
       if (customerList[ChatRoomCharacter[D].MemberNumber].totalPointsGained >= domWinReward) {
-        ServerSend("ChatRoomChat", { Content: "Congratulations " + ChatRoomCharacter[D].Name + "! You got " + domWinReward + " wins. You have earned the rights to a special reward! When you want to get your reward just use the command '#reward'.", Type: "Chat" });
+        ServerSend("ChatRoomChat", { Content: "Congratulations " + charname(ChatRoomCharacter[D]) + "! You got " + domWinReward + " wins. You have earned the rights to a special reward! When you want to get your reward just use the command '#reward'.", Type: "Chat" });
       }
       if ((customerList[ChatRoomCharacter[D].MemberNumber].role == "dom") && (customerList[ChatRoomCharacter[D].MemberNumber].totalPointsGained <= (subToDom * -1))) {
-        ServerSend("ChatRoomChat", { Content: ChatRoomCharacter[D].Name + " is degraded to a sub", Type: "Chat" });
-        ServerSend("ChatRoomChat", { Content: "I am sorry " + ChatRoomCharacter[D].Name + "! Too many lost games. You have lost partly your freedom. You can't leave anymore but you can continue playing to gain freedom back", Type: "Chat", Target: ChatRoomCharacter[D].MemberNumber });
+        ServerSend("ChatRoomChat", { Content: charname(ChatRoomCharacter[D]) + " is degraded to a sub", Type: "Chat" });
+        ServerSend("ChatRoomChat", { Content: "I am sorry " + charname(ChatRoomCharacter[D]) + "! Too many lost games. You have lost partly your freedom. You can't leave anymore but you can continue playing to gain freedom back", Type: "Chat", Target: ChatRoomCharacter[D].MemberNumber });
         ServerSend("ChatRoomChat", { Content: " .... A chain is waiting for you ....", Type: "Emote", Target: ChatRoomCharacter[D].MemberNumber });
         customerList[ChatRoomCharacter[D].MemberNumber].isPlayer = false
         customerList[ChatRoomCharacter[D].MemberNumber].role = "sub"
@@ -1592,7 +1636,8 @@ function prepareWatcher(char) {
 
 function releaseWatcher(memberNumber) {
   char = charFromMemberNumber(memberNumber)
-  removeRestrains(char)
+  	//target = getCharacterObject(char)
+  removeRestrains(target)
   reapplyClothing(char)
   if (char.MemberNumber in watcherList) {
     if (char.MemberNumber in customerList) {
@@ -1604,6 +1649,6 @@ function releaseWatcher(memberNumber) {
       newCustomer(char)
     }
   }
-  ServerSend("ChatRoomChat", { Content: "*Player " + char.Name + " released from Watching.", Type: "Emote" });
+  ServerSend("ChatRoomChat", { Content: "*Player " + charname(char) + " released from Watching.", Type: "Emote" });
   ChatRoomCharacterUpdate(char);
 }
