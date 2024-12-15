@@ -520,7 +520,7 @@ function getCharacterObject(char){
 
   if (isNaN(char)) {
     return char
-  } else if (char <= 9) {
+	} else if (char <= 19) {
     return ChatRoomCharacter[char]
   } else {
     for (var R = 0; R < ChatRoomCharacter.length; R++) {
@@ -637,4 +637,44 @@ function timestamp(aCertainDate) {
 	timeStamp = timeStamp + ' ' + aCertainDate.getHours() + ':' + aCertainDate.getMinutes()
 
 	return timeStamp
+}
+
+
+
+class personStorageData {
+	watcher = false
+	name = ''
+	role = ''
+	points = 0
+	totalPointsGained = 0
+	lockCode = Math.floor(Math.random() * 9000 + 1000).toString()
+	//	strike = 0
+	//	orgasmResisted = 0
+	//	vulvaIntensity = 3
+	//	buttIntensity = 1
+	//	lastActivity = Date.now()
+	//	allowedOrgasmNum = 0
+	//	dice = 0
+	//	round = 0
+	punishmentPoints = 0
+  }
+  
+
+//save Data 
+function saveCharResult(memberNumber, content) {
+  key = genLocalStorageKey(memberNumber)
+  jsonContent = JSON.stringify(content)
+  localStorage.setItem(key, jsonContent)
+}
+
+function getCharResult(memberNumber) {
+  key = genLocalStorageKey(memberNumber)
+  jsonContent = localStorage.getItem(key);
+  content = JSON.parse(jsonContent);
+  return (content)
+
+}
+function genLocalStorageKey(memberNumber) {
+  key = "PDPR" + Player.MemberNumber + "-" + memberNumber //Prohibited dice Player Result
+  return key
 }
