@@ -1776,7 +1776,7 @@ function releaseCustomer(memberNumber) {
  if (reapplyCloth) { reapplyClothing(char) }
 ChatRoomCharacterUpdate(char)
 ServerSend("ChatRoomChat", { Content: "*Player " + charname(char) + " prepared for dicing.", Type: "Emote" });
-
+}
 
 
 
