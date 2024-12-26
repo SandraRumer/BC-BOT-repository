@@ -633,7 +633,8 @@ function updateRoom(roomName, roomDescription, background, private, lock) {
 }
 
 function timestamp(aCertainDate) {
-	timeStamp = aCertainDate.getDay() + '.' + aCertainDate.getMonth() + '.' + aCertainDate.getFullYear()
+	m =  1 + aCertainDate.getMonth()
+	timeStamp = aCertainDate.getDate() + '.' + m + '.' + aCertainDate.getFullYear()
 	timeStamp = timeStamp + ' ' + aCertainDate.getHours() + ':' + aCertainDate.getMinutes()
 
 	return timeStamp

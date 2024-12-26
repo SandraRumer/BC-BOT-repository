@@ -44,11 +44,11 @@ Player.Description = `
 
      ----- dicing with the right dices  -------
 /dice 100 - the correct diceing command. 
-other dices will be punished
+other dice - will be punished
       =============================================
       
       Purpose
-      ------------------
+      ----------------------
       In this game we dicing for a winner. Winner is the player who remain untied in the end.
       We need in minimum `  + minimumParticipants + ` player. I am the referee.
       DO NOT TOUCH THE ServiceBot!  NEVER EVER!
@@ -62,38 +62,38 @@ other dices will be punished
       There may be more restrained watchers and losers. 
       Don't free them. 
       First of all we need in minimum `  + minimumParticipants + ` player. 
-      Choose #play to signal that you want to play. This is only possible befor the game is started. 
+      Choose #play to signal that you want to play. This is only possible before the game is started. 
       
       Start Game
-      ----------------
+      ----------------------
       After all Player signaled to play, anyone can start to rumble: Request the start of game with command #start.
       We play in rounds. 
-      Every player has exact one try to dice. Be aware that unfair behaviour is registered by the Servicebot and will be punished.
+      Every player has exact one try to dice. Be aware that unfair behaviour is registered by the Servicebot.
       Don't dice two times in one round!
       The player with the lowest number looses the round. 
       She will loose some clothing or get some restraints.
 
       Running  game 
-      ------------------------
+      ----------------------
       During a game new customers can't participate. They have to wait until the bot is ready for the next game.
 
      Watching a game 
-     ------------------------
+     ----------------------
      Watching could become boring. If you want to participate, you can dice (/dice 100). 
      One lucky dice below `   + watcherRelease + ` and your watch ends. if not result will be noticed.
      Next dice must be lower. 
 
       Winning a game 
-      ------------------------
+      ----------------------
       Last woman standing wins: The last player who is able to dice, wins the game. 
       She earns a point. Loser looses a point. 
       
-      Rewards and horrible end
+      Rewards 
       --------------------------
       On entry players reputance decides about your role. 
-      If you are a sub you will be chained and you can't leave anymore.
-      After `  + subToDom + ` victories you are promoted to dom level.
-      If you win ` + domWinReward + ` times in dom level you get a reward. 
+      If you are a sub yototal  will be chained and you can't leave anymore.
+      After reaching `  + subToDom + ` total Points  you are promoted to dom level.
+      If you reach  ` + domWinReward + ` total Points in dom level, you get a reward. 
       Losing too many times ... bad luck.
       
       Have fun.
@@ -108,7 +108,7 @@ if (typeof watcherList === 'undefined') {
 }
 delinquent = []
 newGame()
-//ServerSend("AccountUpdate", { Description: Player.Description });
+ServerSend("AccountUpdate", { Description: Player.Description });
 ChatRoomCharacterUpdate(Player)
 
 
