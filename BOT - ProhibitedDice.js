@@ -29,7 +29,7 @@ nl = `
 
 
 Player.Description = `
-....... automated ServiceBot model "Dice gambler" 0.9.0.0 .......
+....... automated ServiceBot model "Dice gambler" 0.9.0.1 .......
       Dicing Game
       ===========
       Overview for COMMANDS: all commands starts with #
@@ -132,7 +132,7 @@ if (personMagicData.prototype.isPlayer == null) {
   personMagicData.prototype.isPlayer = false
 }
 
-
+//development
 updateRoom(RoomName, RoomDescription, RoomBackground, false, false)
 // handling void ???
 //checkRoomForParticipants()
@@ -347,8 +347,36 @@ function kick(SenderCharacter) {
   ChatRoomAdminChatAction("Kick", SenderCharacter.MemberNumber.toString())
 }
 
+function getTargetCharacter(dictonaryObject) {
+  for (let D = 0; D < dictonaryObject.length; D++)
+    if (dictonaryObject[D].TargetCharacter != null)
+      return dictonaryObject[D].TargetCharacter;
+  return ""
+}
 function ChatRoomMessageDice(SenderCharacter, msg, data) {
   if (data.Type != null && SenderCharacter.MemberNumber != Player.MemberNumber) {
+    if (msg.startsWith("ActionUse") || msg.startsWith("ChatOther")) {
+      target = getTargetCharacter(data.Dictionary)
+      if (target == Player.MemberNumber) {
+        if (SenderCharacter.MemberNumber in customerList) {
+          customerList[SenderCharacter.MemberNumber].punishmentPoints++;
+          ServerSend("ChatRoomChat", { Content: "*You are not allowed to touch me. I add a punishment point to your score", Type: "Whisper", Target: SenderCharacter.MemberNumber });
+        } else {
+          if (SenderCharacter.MemberNumber in watcherList) {
+            watcherList[SenderCharacter.MemberNumber].punishmentPoints++;
+            ServerSend("ChatRoomChat", { Content: "*You are not allowed to touch me. I add a punishment point to your score", Type: "Whisper", Target: SenderCharacter.MemberNumber });
+          } else {
+            ServerSend("ChatRoomChat", { Content: "*You are not allowed to touch me. You will continue as a watcher", Type: "Whisper", Target: SenderCharacter.MemberNumber });
+            memorizeClothing(SenderCharacter)
+            newWatcher(SenderCharacter)
+          }
+        }
+      }
+    }
+
+
+
+
     if (msg.startsWith("Wardrobe")) {
       if (SenderCharacter.MemberNumber in watcherList) {
         watcherList[SenderCharacter.MemberNumber].punishmentPoints++;
@@ -358,6 +386,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
           customerList[SenderCharacter.MemberNumber].punishmentPoints++;
           ServerSend("ChatRoomChat", { Content: "*You are not allowed to access me. I add a punishment point to your score", Type: "Whisper", Target: SenderCharacter.MemberNumber });
         } else {
+          
           ServerSend("ChatRoomChat", { Content: "*You are not allowed to access me. You will continue as a watcher", Type: "Whisper", Target: SenderCharacter.MemberNumber });
           memorizeClothing(SenderCharacter)
           newWatcher(SenderCharacter)
@@ -592,8 +621,6 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
             break;
           }
         }
-        ServerSend("ChatRoomChat", { Content: "I am buggy, please punish me", Type: "Chat" });
-        ChatRoomCharacterUpdate(Player)
 
         InventoryWear(Player, "Irish8Cuffs", "ItemFeet", dressColor, 24)
         InventoryWear(Player, "SeamlessHobbleSkirt", "ItemLegs", dressColor, 24)
@@ -604,6 +631,8 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         InventoryWear(Player, "ArmbinderJacket", "ItemArms", [dressColor, "#0A0A0A", "Default"], 22)
         InventoryWear(Player, "KirugumiMask", "ItemHood", ["#9A7F76", "Default", "Default", dressColor], 25)
         InventoryGet(Player, "ItemHood").Property = { "Type": "e2m3b1br0op2ms0", "Difficulty": 15, "Effect": ["BlindHeavy", "Prone", "BlockMouth"], "Hide": ["Glasses", "ItemMouth", "ItemMouth2", "ItemMouth3", "Mask", "ItemHead"], "HideItem": ["ItemHeadSnorkel"] }
+        ServerSend("ChatRoomChat", { Content: "I am buggy, please punish me", Type: "Chat" });
+        ChatRoomCharacterUpdate(Player)
 
 
       }
@@ -1403,7 +1432,7 @@ function freeAllCustomers(reapplyCloth = false) {
     if (ChatRoomCharacter[R].MemberNumber != Player.MemberNumber)
       if (!(ChatRoomCharacter[R].MemberNumber in watcherList)) {
         if (ChatRoomCharacter[R].MemberNumber in customerList) {
-          releaseCustomer(ChatRoomCharacter[R].MemberNumber )
+          releaseCustomer(ChatRoomCharacter[R].MemberNumber)
         }
       }
       else {
@@ -1626,18 +1655,24 @@ function handleLoser(memberNumber) {
     memberName = charname(delinquent)
     ServerSend("ChatRoomChat", { Content: "Poor " + memberName + "! Your fate is certain ! ", Type: "Chat" });
     ServerSend("ChatRoomChat", { Content: memberName + ", Now you will pay with your freedom. Your enslavement starts now", Type: "Whisper", Target: delinquent.MemberNumber });
-    targetGroup = ActivityGetGroupOrMirror(Player.AssetFamily, "ItemBoots")
-    activity = ActivityAllowedForGroup(Player, "ItemBoots").find(function (obj) {
-      return obj.Activity.Name == "Tickle";
-    })
-    activity = ActivityAllowedForGroup(Player, "ItemBoots").find(function (obj) {
-      return obj.Activity.Name == "Spank";
-    })
     targetGroup = ActivityGetGroupOrMirror(Player.AssetFamily, "ItemHead")
     activity = ActivityAllowedForGroup(Player, "ItemHead").find(function (obj) {
       return obj.Activity.Name == "Slap";
     }
     )
+    if (activity == null) {
+    targetGroup = ActivityGetGroupOrMirror(Player.AssetFamily, "ItemBoots")
+    activity = ActivityAllowedForGroup(Player, "ItemBoots").find(function (obj) {
+        return obj.Activity.Name == "Spank";
+    })
+      if (activity == null) {
+    activity = ActivityAllowedForGroup(Player, "ItemBoots").find(function (obj) {
+          return obj.Activity.Name == "Tickle";
+    })
+    }
+
+    }
+    if (activity != null)
     ActivityRun(Player, delinquent, targetGroup, activity)
     console.log(charname(delinquent) + " gets enslaved")
 
