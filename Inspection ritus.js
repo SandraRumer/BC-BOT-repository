@@ -11,10 +11,10 @@ nl = `
 if (typeof timeoutHandle === 'undefined') {
   var timeoutHandle
 }
-Player.Description = `Waiting Mode ` + iVersion + ` 
+Player.Description = nl + `Waiting Mode ` + iVersion + ` 
 I am waiting for a new task. 
 -----------------------------------------------------------------------------------------------
-` + initDescription
+` + nl + initDescription
 
 
 ServerSend("AccountUpdate", { Description: Player.Description });
@@ -277,7 +277,7 @@ function commandHandler(sender, msg) {
 
       all = true
       for (var D = 0; D < ChatRoomCharacter.length; D++) {
-        if (msg.toLowerCase().endsWith(charname(ChatRoomCharacter[D]).toLowerCase()) ) {
+        if (msg.toLowerCase().endsWith(charname(ChatRoomCharacter[D]).toLowerCase())) {
           performSingleInspection(ChatRoomCharacter[D])
           all = false
         }
@@ -291,7 +291,7 @@ function commandHandler(sender, msg) {
     else {
       if (msg.includes("punish")) {
         for (var D = 0; D < ChatRoomCharacter.length; D++) {
-          if (msg.toLowerCase().endsWith(charname(ChatRoomCharacter[D]).toLowerCase()) ) {
+          if (msg.toLowerCase().endsWith(charname(ChatRoomCharacter[D]).toLowerCase())) {
             performSinglePunishment(ChatRoomCharacter[D])
             all = false
           }
