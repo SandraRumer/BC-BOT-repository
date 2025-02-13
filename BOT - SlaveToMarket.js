@@ -7,12 +7,25 @@ RoomBackground = "Theater"
 
 //parameters
 
+// new line in chat - BEGIN
+nl = `
+`
+// new line in chat - END 
 
 
 Player.Description = `
 ....... automated ServiceBot model "Slave Trader" 0.0.0.1 .......
       Slave Market
       =============
+   
+      Purpose
+      ----------------------
+      In this happening slaves were traded. I am the SlaveTraderBot .
+      DO NOT TOUCH ME!  NEVER EVER!
+   
+    
+      Commands
+      ----------------------
       Overview for COMMANDS: all commands starts with #
       If you are gagged, you can use OOC (#. 
       But be careful, it may be punished.
@@ -23,10 +36,6 @@ Player.Description = `
 #info - shows your gaming status.
 #watch - *Danger* to watch the game without interaction. *Danger*
 
-      Purpose
-      ----------------------
-      In this happening slaves were traded. I am the SlaveTraderBot .
-      DO NOT TOUCH ME!  NEVER EVER!
       
 
 Have fun.
@@ -34,7 +43,9 @@ Have fun.
 Fork-Code available here: 
 https://github.com/SandraRumer/BC-BOT-repository
 Comment and suggestion thread on BC Discord: https://discord.com/channels/1264166408888258621/1264166916839444554
-      ` // end of description
+      ` + Player.Description // end of description
+
+
 
 if (typeof guestList === 'undefined') {
     resetGuestList()
@@ -44,7 +55,7 @@ newGame()
 ServerSend("AccountUpdate", { Description: Player.Description });
 ChatRoomCharacterUpdate(Player)
 
-updateRoom(RoomName, RoomDescription, RoomBackground, false, false)
+//dev : !sellnmeupdateRoom(RoomName, RoomDescription, RoomBackground, false, false)
 
 
 ChatRoomMessageAdditionDict["EnterLeave"] = function (SenderCharacter, msg, data) { ChatRoomMessageEnterLeave(SenderCharacter, msg, data) }
@@ -57,6 +68,7 @@ function resetGuestList() {
     guestList[Player.MemberNumber] = new personMagicData()
     guestList[Player.MemberNumber].role = "Trader"
     guestList[Player.MemberNumber].rules = []
+    guestList[Player.MemberNumber].StarMoney = Player.Money
 }
 
 function newGame() {
@@ -127,36 +139,37 @@ function enterLeaveEvent(sender, msg) {
 }
 
 
-function welcomeGuest(char) {
-    console.log(charname(sender) + " Welcome guest")
-
+function welcomeGreetings(sender) {
+    console.log(charname(sender) + " Checking guest")
 }
-function checkGuest(char) {
+function checkGuest(sender) {
     console.log(charname(sender) + " Checking guest")
 }
 
-function addVisitorToList(memberNumber)
+function addVisitorToList(sender)
 {
-
-
-
+    if (!sender.MemberNumber in guestList)
+    {
+    guestList[sender.MemberNumber] = new personMagicData()
+    guestList[sender.MemberNumber].name = charname(sender)
+    }
 }
-
+//------------------- Command handler -------------------------------------
 
 function ChatRoomMassageTrade(sender, msg, data) {
     if (data.Type != null)
         if (data.Type == "Chat") {
-            if (msg.startsWith("!")) {
+            if (msg.startsWith("#")) {
                 commandHandler(sender, msg)
                 // not for Player
-                // ServerSend("ChatRoomChat", { Content: `*Please use whispers to send commands.`, Type: "Emote", Target: sender.MemberNumber });
+                ServerSend("ChatRoomChat", { Content: `*Please use whispers to send commands.`, Type: "Emote", Target: sender.MemberNumber });
             }
         } else if ((data.Type == "Emote") || (data.Type == "Action")) {
-            if (msg.startsWith("!")) {
+            if (msg.startsWith("#")) {
                 commandHandler(sender, msg)
             }
         } else if (data.Type == "Whisper") {
-            if (msg.startsWith("!")) {
+            if (msg.startsWith("#")) {
                 commandHandler(sender, msg)
             }
         } else if (data.Type == "Hidden") {
@@ -166,52 +179,102 @@ function ChatRoomMassageTrade(sender, msg, data) {
 }
 
 function commandHandler(sender, msg) {
-    
-    if (msg.toLowerCase().includes("sellMe")) {
-//Check Requirement 
-        warnmsg = checkRequirements(char)
-          if (warnmsg != "ok")
-            console.log(charname(sender) + " Selling requirements failed")
-          ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: sender.MemberNumber });
-          ChatRoomAdminChatAction("Kick", sender.MemberNumber.toString())
-          if (sender.MemberNumber in guestList)
-            guestList[sender.MemberNumber].punishmentPoints ++
-          else 
-             addVisitorToList(sender.MemberNumber)
 
-                }
-  //inspect 
-//add to laverow 
-       
-      }
-
-    
-      if (msg.toLowerCase().includes("status")) {
-        //depending on role 
-                
-              }
-    
-    
-    
-    if (sender.MemberNumber != Player.MemberNumber) {
-      if (msg.toLowerCase().includes("point")) {
-        if (msg.includes("point")) {
-          console.log("point")
-        }
-      }
-    } else {
-      CharacterSetActivePose(Player, "LegsClosed", true)
-      ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
-  
-      if (msg.includes("inspect")) {
-        console.log("inspect")
-        prepareInspection()
-        setTimeout(function (Player) { performInspection() }, timeoutFactor * 500, Player)
-      }
+    if (msg.toLowerCase().includes("sellme")) {
+        console.log("sellme :" + sender.MemberNumber)
+        prepare4selling(sender)
     }
-  }
+    //inspect 
+    //add to laverow 
+
+    if (msg.toLowerCase().includes("help")) {
+        //depending on role 
+        console.log("help :" + sender.MemberNumber)
+        tellHelp(sender)
+    }
+    if (msg.toLowerCase().includes("status")) {
+        //depending on role 
+        console.log("status :" + sender.MemberNumber)
+        tellStatus(sender)
+    }
+    if (sender.MemberNumber != Player.MemberNumber) {
+        if (msg.toLowerCase().includes("point")) {
+            if (msg.includes("point")) {
+                console.log("point "+  + sender.MemberNumber)
+                tellPoints(sender)
+            }
+        }
+    } else {
+        CharacterSetActivePose(Player, "LegsClosed", true)
+        ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
+
+        if (msg.includes("inspect")) {
+            console.log("inspect")
+            prepareInspection()
+            setTimeout(function (Player) { performInspection() }, timeoutFactor * 500, Player)
+        }
+    }
+}
+
+function whisperHandler(sender, msg) {
+}
 
 
+function prepare4selling(sender) {
+    //Check Requirement 
+    warnmsg = checkRequirements(sender)
+    if (warnmsg != "ok") {
+        console.log(charname(sender) + "Selling requirements failed")
+        ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: sender.MemberNumber });
+        setTimeout(function (Player) { ChatRoomAdminChatAction("Kick", sender.MemberNumber.toString()) }, 6 * 1000)
+
+    }else
+    {
+     addVisitorToList(sender.MemberNumber)
+     if (guestList[sender.MemberNumber].role ==  null)
+     {
+        guestList[sender.MemberNumber].role = "merchandise"
+        sender.Nickname = "Item" + sender.MemberNumber
+        guestList[sender.MemberNumber].Description = analyzeCharacter(sender)
+     }
+        else
+            { 
+    answer = "you are already playing as "  + guestList[sender.MemberNumber].role + nl
+        sendAnswer (sender, answer)
+    }
+    memorizeClothing(sender)
+    removeClothes(sender, true, false)
+    InventoryWear(sender, "VibratingEgg", "ItemVulva", "Default")
+     ChatRoomCharacterUpdate(Player)
+
+    }
+}
+
+
+function   tellHelp(char)
+{
+answer = 'no help'
+sendAnswer (char, answer)
+}
+
+
+function   tellStatus(char)
+{
+answer = 'no status'
+sendAnswer (char, answer)
+}
+
+function  tellPoints(char)
+{
+answer = 'no points'
+sendAnswer (char, answer)
+}
+
+function sendAnswer (char, answer)
+{
+    ServerSend("ChatRoomChat", { Content: answer, Type: "Whisper", Target: char.MemberNumber });
+
+}
 
 function pause ()
 {
@@ -219,7 +282,7 @@ function pause ()
     CharacterSetActivePose(Player, "Knee", true);
     ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
     ServerSend("ChatRoomChat", { Content: "I am starting.", Type: "Chat" });
-
+    ChatRoomCharacterUpdate(Player)
 }
 
 //warnmsg = checkRequirements(char)
@@ -246,3 +309,49 @@ function checkRequirements(char) {
     return warnmsg
   }
   
+
+  function analyzeCharacter(sender)
+  {
+        description = "Slave " + charname(sender) + nl
+        //if sender.Description contains "switch"
+
+        if (ReputationCharacterGet(sender, "Dominant") < 10) {
+            description = description + 'A submissive merchandise exemplar. ' + nl
+        }
+        if (ReputationCharacterGet(sender, "Dominant") > 50) {
+            description = description + "A fallen dominant Person." + nl 
+        }
+         if (ReputationCharacterGet(sender, "Kidnap") > 75) {
+            description = description + "Once a noble Masterkidnaper, now a peace of shame." + nl 
+         }
+        
+         if (ReputationCharacterGet(sender, "Maid") > 75) {
+            description = description + "She is a trained maid, ready to serve."
+          }
+return description
+  }
+
+  function calculatePrice(sender)
+  {    price = 10          
+    price = price * sender.GetDifficulty()
+        if (ReputationCharacterGet(sender, "Dominant") > 50) {
+            price = price + 150
+        }
+         if (ReputationCharacterGet(sender, "Kidnap") > 75) {
+            price = price + 75
+         }
+        
+         if (ReputationCharacterGet(sender, "Maid") > 75) {
+            price = price + 50
+          }
+
+          if (ReputationCharacterGet(sender, "Dominant") > 50) {
+            price = price + 150
+        }   
+        if (sender.IsFullyOwned ()) 
+
+            price = Math.floor(price / 6 ) 
+            else 
+            price = price * 2 
+return price
+  }
