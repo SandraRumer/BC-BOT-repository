@@ -90,7 +90,7 @@ other dice - will be punished
       
       Rewards 
       --------------------------
-      On entry players reputance decides about your role. 
+      On entry players reputation decides about your role. 
       If you are a sub yototal  will be chained and you can't leave anymore.
       After reaching `  + subToDom + ` total Points  you are promoted to dom level.
       If you reach  ` + domWinReward + ` total Points in dom level, you get a reward. 
@@ -733,7 +733,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
   }
   else {
     //Player Text 
-    if (SenderCharacter.MemberNumber == Player.MemberNumber) {
+   if (SenderCharacter.MemberNumber == Player.MemberNumber) { 
       if (msg.toLowerCase().includes("#heal")) {
         checkRoomForParticipants()
         checkCharacterPlace(Player)
@@ -1811,7 +1811,7 @@ function releaseCustomer(memberNumber) {
  if (reapplyCloth) { reapplyClothing(char) }
 ChatRoomCharacterUpdate(char)
 ServerSend("ChatRoomChat", { Content: "*Player " + charname(char) + " prepared for dicing.", Type: "Emote" });
-}
+} 
 
 
 
