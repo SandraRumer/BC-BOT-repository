@@ -24,18 +24,17 @@ Player.Description = `
         In this happening slaves were traded. I am the SlaveTraderBot .
         DO NOT TOUCH ME!  NEVER EVER!
     
-        
         Commands
         ----------------------
         Overview for COMMANDS: all commands starts with #
         If you are gagged, you can use OOC (#. 
         But be careful, it may be punished.
       
-
     #sellme - you will be presented and sold at this market
+    #present - you can ask forpresenting the slave
+    #buy - not implemented right now
     #info - shows your gaming status.
     #leave - you will be restrained with a timer padlock (5 mins) and kicked out of the room.
- 
         
     Have fun.
 
@@ -56,10 +55,8 @@ ChatRoomCharacterUpdate(Player)
 
 //dev : !sellnmeupdateRoom(RoomName, RoomDescription, RoomBackground, false, false)
 
-
 ChatRoomMessageAdditionDict["EnterLeave"] = function (SenderCharacter, msg, data) { ChatRoomMessageEnterLeave(SenderCharacter, msg, data) }
 ChatRoomMessageAdditionDict["Trade"] = function (SenderCharacter, msg, data) { ChatRoomMassageTrade(SenderCharacter, msg, data) }
-
 
 // initialising 
 function resetGuestList() {
@@ -106,8 +103,6 @@ function newGame() {
             }
             return count
         }
-
-
     }
     CharacterSetActivePose(Player, "LegsClosed", true);
     ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
@@ -271,30 +266,45 @@ function commandHandler(sender, msg) {
         console.log("sellme :" + sender.MemberNumber)
         prepareSingle4selling(sender)
     }
-
     if (msg.toLowerCase().includes("sell ")) {
         console.log("sell command from " + sender.MemberNumber)
         playerList = extractNumberfromMessage(msg)
         prepareSlaves4selling(sender, playerList)
     }
-
-    //presentSlave(sender, char) 
-
     if (msg.includes("present")) {
         console.log("present")
         playerList = extractNumberfromMessage(msg)
         presentSlaves(sender, playerList)
     }
 
+    if (msg.toLowerCase().includes("buy ")) {
+        console.log("buy command from " + sender.MemberNumber) + " " + msg
+        playerList = extractNumberfromMessage(msg)
+        // sell 
+    }
 
-    //add to laverow 
-
+    if (msg.toLowerCase().includes("leave")) {
+        if (sender.MemberNumber in guestList) {
+            if (guestList[sender.MemberNumber].role == 'merchandise') {
+                if (guestList[sender.MemberNumber].punishmentPoints > 0) {
+                    ServerSend("ChatRoomChat", { Content: "*You are not allowed to leave anymore. You have lost and enslaved. I add a punishment point to your score", Type: "Whisper", Target: sender.MemberNumber });
+                    guestList[sender.MemberNumber].punishmentPoints++;
+                } else {
+                    //ServerSend("ChatRoomChat", { Content: "*You are a lucky one, You are not enslaved. But it takes some time to get you out. be patient", Type: "Whisper", Target: SenderCharacter.MemberNumber });
+                    ServerSend("ChatRoomChat", { Content: "*You are a lucky one, You are allowed to leave.", Type: "Whisper", Target: sender.MemberNumber });
+                    kick(sender)
+                }
+            }
+            else {
+                kick(sender)
+            }
+        }
+    }
     //inspect 
     if (msg.includes("inspect")) {
         console.log("inspect")
         prepareInspection()
         setTimeout(function (Player) { performInspection() }, timeoutFactor * 500, Player)
-
         const chars = msg.split('');
         playerList = []
         for (memberNumber in guestList) {
@@ -331,19 +341,13 @@ function commandHandler(sender, msg) {
 
         ServerSend("ChatRoomChat", { Content: mess, Type: "Emote", Target: sender.MemberNumber });
     }
-    if (msg.toLowerCase().includes("point")) {
-        console.log("point " + + sender.MemberNumber)
-        tellPoints(sender)
-
-
-
-        if (msg.toLowerCase().includes("help")) {
-            //depending on role 
-            console.log("help :" + sender.MemberNumber)
-            tellHelp(sender)
-        }
-
+    if (msg.toLowerCase().includes("help")) {
+        //depending on role 
+        console.log("help :" + sender.MemberNumber)
+        tellHelp(sender)
     }
+
+
     if (msg.toLowerCase().includes("status")) {
         //depending on role 
         console.log("status :" + sender.MemberNumber)
@@ -390,7 +394,6 @@ function commandHandler(sender, msg) {
 }
 function whisperHandler(sender, msg) {
 }
-
 function extractNumberfromMessage(msg) {
     const chars = msg.split(' ');
     playerList = []
@@ -402,21 +405,42 @@ function extractNumberfromMessage(msg) {
         if (memberNumber != Player.MemberNumber) {
             char = charFromMemberNumber(memberNumber)
             if (msg.includes(charname(char)) || all) {
-                console.log(true)
                 playerList.push(memberNumber)
             }
             else
-                console.log("not include")
+                console.log("Name not include")
             if (charname(char) in chars)
                 console.log(true)
-            console.log("not Nickname")
+            console.log("not Nickname in Message")
         }
     }
     return (playerList)
 }
-
+function kick(SenderCharacter) {
+    // remove all locks, dildo, chastitybelt and kick
+    free(SenderCharacter, true, true)
+    //removeRestrains(sender)
+    //reapplyClothing(sender) 
+    //ChatRoomCharacterUpdate(sender)
+    free(SenderCharacter.MemberNumber, update = true, true)
+    ServerSend("ChatRoomChat", { Content: "* take care", Type: "Emote", Target: SenderCharacter.MemberNumber });
+    InventoryWear(SenderCharacter, "ArmbinderJacket", "ItemArms", ["#bbbbbb", "#000000", "#bbbbbb"], 50)
+    InventoryLock(SenderCharacter, InventoryGet(SenderCharacter, "ItemArms"), { Asset: AssetGet("Female3DCG", "ItemMisc", "MistressTimerPadlock") }, Player.MemberNumber)
+    InventoryGet(SenderCharacter, "ItemArms").Property.RemoveItem = true
+    //InventoryRemove(SenderCharacter,"ItemPelvis")
+    //InventoryRemove(SenderCharacter,"ItemVulva")
+    //InventoryRemove(SenderCharacter,"ItemButt")
+    ChatRoomCharacterUpdate(SenderCharacter)
+    ChatRoomAdminChatAction("Kick", SenderCharacter.MemberNumber.toString())
+}
 function tellHelp(char) {
-    answer = 'no help'
+
+    answer = '********************************' + nl
+    answer = answer + 'You can sell yourself with command #sellme.' + nl
+    answer = answer + 'You can present a slave with command #present <name of slave>.' + nl
+    answer = answer + 'You can sell your slave with command #sell <name of slave>.' + nl
+
+    answer = answer + '********************************' + nl
     sendAnswer(char, answer)
 }
 function tellStatus(char) {
@@ -445,8 +469,6 @@ function pause() {
     ServerSend("ChatRoomChat", { Content: "I am starting.", Type: "Chat" });
     ChatRoomCharacterUpdate(Player)
 }
-//warnmsg = checkRequirements(char)
-//  if (warnmsg != "ok")
 function checkRequirements(char) {
     //??? enhance check for more restraints 
     if (char.ItemPermission > 2) {
@@ -537,13 +559,11 @@ function prepareSlaves4selling(sender, playerList) {
     //for all in playerList 
     //  prepare4selling(sender)
 }
-
 function prepareSingle4selling(sender) {
     playlist = []
     playlist.push(sender.MemberNumber)
     prepare4selling(sender, sender, [])
 }
-
 function prepare4selling(requester, sender, playlist) {
     //Check Requirement 
     warnmsg = checkRequirements(sender)
@@ -625,25 +645,22 @@ function prepareSlave4(sender, char, playerList) {
     saveCharResult(memberNumber, personContent, gamekey)
     setTimeout(function (Player) { prepareSlaves4selling(sender, playerList) }, 1000)
 }
-
 function releaseSlave(slaveObj) {
     memberNumber = slaveObj.MemberNumber
-if (memberNumber  in guestList)
-    {guestList[memberNumber].role = 'customer'
-    guestList[memberNumber].StarMoney +=  100
-    guestList[memberNumber].Description = 'free and not a slave anymore'
-    personContent = convertPers(slaveObj)
-    saveCharResult(memberNumber, personContent, gamekey)
+    if (memberNumber in guestList) {
+        guestList[memberNumber].role = 'customer'
+        guestList[memberNumber].StarMoney += 100
+        guestList[memberNumber].Description = 'free and not a slave anymore'
+        personContent = convertPers(slaveObj)
+        saveCharResult(memberNumber, personContent, gamekey)
     }
     removeRestrains(slaveObj)
-        reapplyClothing(slaveObj) 
-ChatRoomCharacterUpdate(slaveObj)
-ServerSend("ChatRoomChat", { Content: "*" + charname(slaveObj) + " is released from her slavebonds", Type: "Chat" });
+    reapplyClothing(slaveObj)
+    ChatRoomCharacterUpdate(slaveObj)
+    ServerSend("ChatRoomChat", { Content: "*" + charname(slaveObj) + " is released from her slavebonds", Type: "Chat" });
 
 
 }
-
-
 function presentSlaves(sender, playerList) {
     if (playerList.length > 0) {
         delinquent = playerList.shift()
@@ -663,23 +680,18 @@ function presentSlaves(sender, playerList) {
     }
 
 }
-
 function presentSlave(sender, char, playerList) {
     answer = 'Look here - ' + charname(char) + nl
     answer = answer + guestList[char.MemberNumber].Description + nl
     sendAnswer(sender, answer)
     setTimeout(function (Player) { presentSlave2(sender, char, playerList) }, 6 * 1000)
 }
-
-
 function presentSlave2(sender, char, playerList) {
     answer = 'Your very special price with maximum discount:   ' + guestList[char.MemberNumber].Price + nl
     sendAnswer(sender, answer)
     setTimeout(function (Player) { presentSlaves(sender, playerList) }, 6 * 1000)
 }
-
 //-------------------Storage ------------------------
-
 function convertPers(SenderCharacter) {
     per = new (personStorageData)
     per.watcher = false
@@ -697,7 +709,6 @@ function convertPers(SenderCharacter) {
     }
     return per
 }
-
 //Restore saved data 
 function reconvertPers(personContent, char) {
     if (personContent == null)
@@ -714,13 +725,9 @@ function reconvertPers(personContent, char) {
     }
     return true
 }
-
-
 function checkSlave() {
     console.log("Checkslave, time : " + timestamp(new Date()))
     game.status = 'punishment"'
-
-
     countps = 0
     for (var D = 0; D < ChatRoomCharacter.length; D++) {
         addVisitorToList(ChatRoomCharacter[D])
@@ -747,7 +754,7 @@ function checkSlave() {
     if (countps == 0) {
         ServerSend("ChatRoomChat", { Content: "Good girls, no punishment needed!", Type: "Chat" });
         game.status = "offering"
-        setTimeout(function (Player) { CheckCustomer() }, Math.floor(Math.random() * 50000 * 20000, Player))
+        setTimeout(function (Player) { CheckCustomer() }, Math.floor(Math.random() * 150000, Player))
     }
     else {
         ServerSend("ChatRoomChat", { Content: "It is punishment time!", Type: "Emote" });
@@ -757,7 +764,6 @@ function checkSlave() {
         setTimeout(function (Player) { CheckSlavePunishment() }, Math.floor(Math.random() * 6000 + 5000, Player))
     }
 }
-
 function CheckSlavePunishment() {
     var emptyGuest = 0
     for (memberNumber in guestList) {
@@ -771,9 +777,6 @@ function CheckSlavePunishment() {
                 ServerSend("ChatRoomChat", { Content: "Your punishment for misbehaving is done", Type: "Whisper", Target: char.MemberNumber });
                 //InventoryGet(char, "ItemVulva").Property = { Mode: "Edge", Intensity: 2, Effect: ["Egged", "Vibrating"] }
                 guestList[memberNumber].beingPunished = false
-                if (isCustomer(char.MemberNumber)) {
-                    reapplyClothing(char)
-                }
             }
 
         }
@@ -788,13 +791,22 @@ function CheckSlavePunishment() {
         setTimeout(function (Player) { CheckSlavePunishment() }, Math.floor(Math.random() * 10000 + 1000, Player))
     return true
 }
-
 function CheckCustomer() {
     console.log("CheckCustomer, time : " + timestamp(new Date()))
-    setTimeout(function (Player) { checkSlave() }, 50000 + 36000)
+    for (memberNumber in guestList) {
+        if (guestList[memberNumber].beingPunished) {
+            char = charFromMemberNumber(memberNumber)
+            if (guestList[memberNumber].punishmentPoints <= 0) {
+                guestList[memberNumber].beingPunished = false
+                if (isCustomer(char.MemberNumber)) {
+                    reapplyClothing(char)
+                }
+            }
+
+        }
+    }
+    setTimeout(function (Player) { checkSlave() }, 150000 + 72000)
 }
-
-
 function spankCustomer(memberNumber) {
     char = charFromMemberNumber(memberNumber)
     //ServerSend("ChatRoomChat", { Content: "it hurts me, too", Type: "Whisper", Target: char.MemberNumber });
