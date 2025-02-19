@@ -176,7 +176,7 @@ function checkGuest(sender) {
 function enslave(sender) {
     // Backlog
     // guestList[sender.MemberNumber].NickName = sender.Nickname
-    sender.Nickname = "Item" + sender.MemberNumber
+    //sender.Nickname = "Item" + sender.MemberNumber
     ChatRoomCharacterUpdate(sender);
     guestList[sender.MemberNumber].Description = analyzeCharacter(sender)
     guestList[sender.MemberNumber].Price = calculatePrice(sender)
@@ -218,16 +218,24 @@ function ChatRoomMassageTrade(sender, msg, data) {
         } else if (data.Type == "Hidden") {
             //console.log("Hidden message: " + msg)
         }
-
     }
     if ((data.Type != null && sender.MemberNumber == Player.MemberNumber)) {
         TraderCommandHandler(sender, msg)
     }
+    if (msg.includes("Orgasm") && sender.MemberNumber != Player.MemberNumber) {
+        if (sender.MemberNumber in guestList) {
+            guestList[sender.MemberNumber].points += 1
+            if (isSlave[sender.MemberNumber]) {
+                guestList[sender.MemberNumber].punishmentPoints += 1
+            }
+        }
+    }
 }
 function TraderCommandHandler(sender, msg) {
-    if (msg.toLowerCase().includes("#release")) {
+    if (msg.toLowerCase().includes("release")) {
         all = false
         done = false
+        console.log(msg)
         if (msg.toLowerCase().endsWith("all")) {
             all = true
         }
@@ -235,6 +243,8 @@ function TraderCommandHandler(sender, msg) {
             if (msg.toLowerCase().endsWith(charname(ChatRoomCharacter[D]).toLowerCase()) || all) {
                 if (ChatRoomCharacter[D].MemberNumber in guestList && (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber)) {
                     //release
+                    releaseSlave(ChatRoomCharacter[D]) 
+                    ServerSend("ChatRoomChat", { Content: "*" + charname(ChatRoomCharacter[D]) + " is released from her slavebonds", Type: "Chat" });                    
                     console.log("Guest released: " + charname(ChatRoomCharacter[D]))
                     done = true
                 }
@@ -242,6 +252,7 @@ function TraderCommandHandler(sender, msg) {
                     // freeAllunknown
                     if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber) {
                         //release
+                        releaseSlave(ChatRoomCharacter[D]) 
                         console.log("no customer is released: " + charname(ChatRoomCharacter[D]))
                         done = true
                     }
@@ -251,8 +262,7 @@ function TraderCommandHandler(sender, msg) {
         if (!done)
             console.log("no one released: ")
     }
-
-    if (msg.toLowerCase().includes("#status")) {
+    if (msg.toLowerCase().includes("status")) {
         mess = `*--------------------` + nl + ` merchandises : ` + game.slaveCount()
         if (game.slaveCount() > 1)
             mess = mess + nl + ` value : ` + game.slaveValue()
@@ -277,10 +287,32 @@ function commandHandler(sender, msg) {
         presentSlaves(sender, playerList)
     }
 
-    if (msg.toLowerCase().includes("buy ")) {
+    if (msg.toLowerCase().includes("buy")) {
         console.log("buy command from " + sender.MemberNumber) + " " + msg
-        playerList = extractNumberfromMessage(msg)
+        //playerList = extractNumberfromMessage(msg)
         // sell 
+        msgArray = msg.split(" ")
+        sellername = msgArray[1]
+        offerprice = Number(msgArray[2])
+        sellernumber = findNumberfromCharname(sellername)
+        if ((sellernumber in  guestList) && isSlave(sellernumber))
+            // trade 
+            if (offerprice >= guestList[sellernumber].Price)
+            {
+                answer = "You made it. The price is " + Number (guestList[sellernumber].Price) + " Dollar"
+     
+                // Verkauft
+                ServerSend("ChatRoomChat", { Content: answer, Type: "Whisper", Target: char.MemberNumber });               
+            }
+            else 
+            {
+                        //abgelehnt 
+
+                answer = "Sorry, too low. The price is " + Number (guestList[sellernumber].Price) + " Dollar"
+            sendAnswer(sender, answer) 
+
+            }
+
     }
 
     if (msg.toLowerCase().includes("leave")) {
@@ -300,7 +332,7 @@ function commandHandler(sender, msg) {
             }
         }
     }
-    //inspect 
+    //inspect todo 
     if (msg.includes("inspect")) {
         console.log("inspect")
         prepareInspection()
@@ -309,7 +341,6 @@ function commandHandler(sender, msg) {
         playerList = []
         for (memberNumber in guestList) {
             if (memberNumber != Player.MemberNumber && isSlave(guestList[memberNumber])) {
-
                 if (msg.includes(guestList[memberNumber].Nickname))
                     console.log(true)
                 else
@@ -346,8 +377,6 @@ function commandHandler(sender, msg) {
         console.log("help :" + sender.MemberNumber)
         tellHelp(sender)
     }
-
-
     if (msg.toLowerCase().includes("status")) {
         //depending on role 
         console.log("status :" + sender.MemberNumber)
@@ -391,6 +420,9 @@ function commandHandler(sender, msg) {
         ServerSend("ChatRoomChat", { Content: "I am buggy, please punish me", Type: "Chat" });
 
     }
+
+
+
 }
 function whisperHandler(sender, msg) {
 }
@@ -404,6 +436,7 @@ function extractNumberfromMessage(msg) {
     for (memberNumber in guestList) {
         if (memberNumber != Player.MemberNumber) {
             char = charFromMemberNumber(memberNumber)
+            if (char != null && char != undefined) {
             if (msg.includes(charname(char)) || all) {
                 playerList.push(memberNumber)
             }
@@ -412,6 +445,7 @@ function extractNumberfromMessage(msg) {
             if (charname(char) in chars)
                 console.log(true)
             console.log("not Nickname in Message")
+        }
         }
     }
     return (playerList)
@@ -436,10 +470,10 @@ function kick(SenderCharacter) {
 function tellHelp(char) {
 
     answer = '********************************' + nl
-    answer = answer + 'You can sell yourself with command #sellme.' + nl
-    answer = answer + 'You can present a slave with command #present <name of slave>.' + nl
-    answer = answer + 'You can sell your slave with command #sell <name of slave>.' + nl
-
+    answer = answer + 'Sell yourself with command #sellme.' + nl
+    answer = answer + 'present a slave with command #present <name of slave>.' + nl
+    answer = answer + 'sell your slave with command #sell <name of slave>.' + nl
+    answer = answer + 'Buy your slave with command #buy <name of slave> <your offer>.' + nl
     answer = answer + '********************************' + nl
     sendAnswer(char, answer)
 }
@@ -657,9 +691,6 @@ function releaseSlave(slaveObj) {
     removeRestrains(slaveObj)
     reapplyClothing(slaveObj)
     ChatRoomCharacterUpdate(slaveObj)
-    ServerSend("ChatRoomChat", { Content: "*" + charname(slaveObj) + " is released from her slavebonds", Type: "Chat" });
-
-
 }
 function presentSlaves(sender, playerList) {
     if (playerList.length > 0) {
@@ -829,3 +860,16 @@ function spankCustomer(memberNumber) {
     else
         console.log(memberNumber, " spanking is not possinble")
 }
+function  findNumberfromCharname(sellername) {
+    sellernumber = 0
+    if ((sellername != null) && (sellername != ""))
+        for (let C = 0; C < ChatRoomCharacter.length; C++) {
+            if (charname(ChatRoomCharacter[C]).toLowerCase() == sellername.toLowerCase()) {
+                sellernumber = ChatRoomCharacter[C].MemberNumber;
+                break;
+            }
+        }
+        console.log(sellernumber)
+    return sellernumber
+}
+
