@@ -216,6 +216,9 @@ actionListprep[2] = [
   "GagKiss"
 ]
 
+//RightHand,Fingernails,Fingernails
+//LeftHand,Fingernails,Fingernails
+
 actionList = [
   "Slap", //ear
   "Kiss"
