@@ -15,8 +15,8 @@ nl = `
 
 
 Player.Description = `
-    ....... automated ServiceBot model "Slave Trader" 0.0.0.1 .......
-        Slave Market
+    ....... automated ServiceBot model "Slave Trader" 0.0.0.2 .......
+        Slave to Market
         =============
     
         Purpose
