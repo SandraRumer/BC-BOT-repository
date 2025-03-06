@@ -24,7 +24,7 @@ watcherRelease = 10
 loserList = []
 // new line in chat - BEGIN
 nl = `
-      `
+`
 // new line in chat - END 
 
 
@@ -621,7 +621,7 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
             break;
           }
         }
-
+        freeAll(true)
         InventoryWear(Player, "Irish8Cuffs", "ItemFeet", dressColor, 24)
         InventoryWear(Player, "SeamlessHobbleSkirt", "ItemLegs", dressColor, 24)
         InventoryWear(Player, "BalletWedges", "ItemBoots", dressColor, 16)
@@ -1645,7 +1645,7 @@ function spankCustomer(memberNumber) {
   if (activity != null)
     ActivityRun(Player, char, targetGroup, activity)
   else
-    console.log(memberNumber, " spanking is not possinble")
+    console.log(memberNumber, " spanking is not possible")
 }
 
 function handleLoser(memberNumber) {
