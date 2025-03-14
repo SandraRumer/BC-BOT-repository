@@ -1,7 +1,7 @@
 initDescription = Player.Description
 gamekey = 1
 //SlatoMa
-RoomName = "SlaToMa"
+    RoomName = "SlaToMa"
 RoomDescription = "\"Slaves and Tools Market\" best offers in town. Read the bot profile for instructions!"
 RoomBackground = "Theater"
 
@@ -10,7 +10,7 @@ RoomBackground = "Theater"
 
 // new line in chat - BEGIN
 nl = `
-    `
+`
 // new line in chat - END 
 
 
@@ -32,7 +32,8 @@ Player.Description = `
       
     #sellme - you will be presented and sold at this market
     #present - you can ask forpresenting the slave
-    #buy - not implemented right now
+    #buy <Nickname> <price> - you can buy <Nickname> with Starbucks. 
+        Be careful to write  the nickname in a proper way.
     #info - shows your gaming status.
     #leave - you will be restrained with a timer padlock (5 mins) and kicked out of the room.
         
@@ -148,7 +149,7 @@ function enterLeaveEvent(sender, msg) {
     }
 }
 function welcomeGreetings(sender) {
-    answer = "Welcome " + charname(sender) + nl
+    answer = nl + "Welcome " + charname(sender) + " !" + nl
     answer = answer + "This is my premium slave market where you can buy or sell merchandises"
     sendAnswer(sender, answer)
     console.log(charname(sender) + " Checking guest")
@@ -280,12 +281,13 @@ function commandHandler(sender, msg) {
     }
     if (msg.toLowerCase().includes("sell ")) {
         console.log("sell command from " + sender.MemberNumber)
-        playerList = extractNumberfromMessage(msg)
+        checkGuests(sender)
+        playerList = extractNumberfromMessage(sender, msg)
         prepareSlaves4selling(sender, playerList, 0)
     }
     if (msg.includes("present")) {
         console.log("present")
-        playerList = extractNumberfromMessage(msg)
+        playerList = extractNumberfromMessage(sender, msg)
         presentSlaves(sender, playerList)
     }
 
@@ -399,6 +401,8 @@ function commandHandler(sender, msg) {
         tellStatus(sender)
     }
     if (msg.toLowerCase().includes("release")) {
+        console.log("release :" + sender.MemberNumber)
+        tellRelease(sender)
     }
     if (msg.toLowerCase().includes("buggy")) {
         //punish bot
@@ -447,15 +451,23 @@ function commandHandler(sender, msg) {
 }
 function whisperHandler(sender, msg) {
 }
-function extractNumberfromMessage(msg) {
-    const chars = msg.split(' ');
+
+function checkGuests(sender) {
+    //Check if all Room Particiopants in List and if all List memebrs are in Room 
+    //??? to be defined
+
+
+}
+function extractNumberfromMessage(sender, msg) {
+    const chars = msg.split(',');
     playerList = []
     all = false
-    if (msg.toLowerCase().includes("all")) {
+
+    if (msg.toLowerCase().includes(" all")) {
         all = true
     }
     for (memberNumber in guestList) {
-        if (memberNumber != Player.MemberNumber) {
+        if ((memberNumber != Player.MemberNumber) && (memberNumber != sender.memberNumber)) {
             char = charFromMemberNumber(memberNumber)
             if (char != null && char != undefined) {
                 if (msg.includes(charname(char)) || all) {
@@ -521,6 +533,7 @@ function tellPoints(char) {
     sendAnswer(char, answer)
 }
 function sendAnswer(char, answer) {
+    if (char != null )
     ServerSend("ChatRoomChat", { Content: answer, Type: "Whisper", Target: char.MemberNumber });
 }
 function sendAction(char, action) {
@@ -608,40 +621,42 @@ function prepareSlaves4selling(sender, playerList, newSlaves) {
         delinquent = playerList.shift()
         char = charFromMemberNumber(delinquent)
         if (char == null) {
-            prepareSlave(sender, char, playerList, newSlaves)
-            return
-        }
-
-        warnmsg = checkRequirements(char)
-        if (warnmsg != "ok") {
-            console.log(charname(sender) + "Selling requirements failed")
-            ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: sender.MemberNumber });
-            ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: char.MemberNumber });
-            setTimeout(function (Player) { ChatRoomAdminChatAction("Kick", char.MemberNumber.toString()) }, 6 * 1000)
             setTimeout(function (Player) { prepareSlaves4selling(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150, Player))
+            return
+
         }
         else {
-            addVisitorToList(char)
-            if (guestList[sender.MemberNumber].role == "")
-                sup = "unknown"
-            else
-                sup = guestList[char.MemberNumber].role
-            answer = "Someone wants you to be sold. Up to now you are a " + sup + nl
-            if (canSell(sender, char)) {
-                guestList[char.MemberNumber].role = "merchandise"
-                enslave(char)
-                ChatRoomCharacterUpdate(char);
-                memorizeClothing(char)
-                ServerSend("ChatRoomChat", { Content: " waves to " + charname(char), Type: "Emote", });
-                newSlaves += 1
-                setTimeout(function (Player) { prepareSlave(sender, char, playerList, newSlaves) }, 8 * 1000)
-            } else {
-                guestList[sender.MemberNumber].punishmentPoints += 1
-                senderAnswer = "You failed to sell " + charname(char) + " to me. "
-                senderAnswer = senderAnswer + "You earned a punishment."
-                sendAnswer(sender, senderAnswer)
+            warnmsg = checkRequirements(char)
+            if (warnmsg != "ok") {
+                console.log(charname(sender) + "Selling requirements failed")
+                ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: sender.MemberNumber });
+                ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: char.MemberNumber });
+                setTimeout(function (Player) { ChatRoomAdminChatAction("Kick", char.MemberNumber.toString()) }, 6 * 1000)
+                setTimeout(function (Player) { prepareSlaves4selling(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150, Player))
             }
-            sendAnswer(char, answer)
+            else {
+                addVisitorToList(char)
+                if (guestList[sender.MemberNumber].role == "")
+                    sup = "unknown"
+                else
+                    sup = guestList[char.MemberNumber].role
+                answer = "Someone wants you to be sold. Up to now you are a " + sup + nl
+                if (canSell(sender, char)) {
+                    guestList[char.MemberNumber].role = "merchandise"
+                    enslave(char)
+                    ChatRoomCharacterUpdate(char);
+                    memorizeClothing(char)
+                    ServerSend("ChatRoomChat", { Content: " waves to " + charname(char), Type: "Emote", });
+                    newSlaves += 1
+                    setTimeout(function (Player) { prepareSlave(sender, char, playerList, newSlaves) }, 8 * 1000)
+                } else {
+                    guestList[sender.MemberNumber].punishmentPoints += 1
+                    senderAnswer = "You failed to sell " + charname(char) + " to me. "
+                    senderAnswer = senderAnswer + "You earned a punishment."
+                    sendAnswer(sender, senderAnswer)
+                }
+                sendAnswer(char, answer)
+            }
         }
     }
     else {
@@ -686,8 +701,7 @@ function prepareSlave2(sender, char, playerList, newSlaves) {
     setTimeout(function (Player) { prepareSlave3(sender, char, playerList, newSlaves) }, 8 * 1000)
 }
 function prepareSlave3(sender, char, playerList, newSlaves) {
-    if ((char == null) || (char.MemberNumber not in guestList))
-    {
+    if ((char != null) && (char.MemberNumber in guestList)) {
         InventoryWear(char, "SturdyLeatherBelts", "ItemArms", ["#11161B", "#403E40", "#11161B", "#403E40", "#11161B", "#403E40"], 50)
         InventoryLock(char, InventoryGet(char, "ItemArms"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
         InventoryGet(char, "ItemArms").Property.CombinationNumber = guestList[char.MemberNumber].lockCode
