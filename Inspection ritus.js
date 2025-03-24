@@ -1,4 +1,4 @@
-iVersion = "1.1"
+iVersion = "1.2"
 initDescription = Player.Description
 
 RoomName = "Inspection Institute"
@@ -6,7 +6,7 @@ RoomDescription = "to inspect, punish or humiliate"
 RoomBackground = "PrisonHall"
 
 nl = `
-      `
+`
 
 if (typeof timeoutHandle === 'undefined') {
   var timeoutHandle
@@ -224,18 +224,19 @@ actionList = [
   "Kiss"
 ]
 
-s = [
-  "Spank", "Tickle", "Caress", "Caress",
-  "PenetrateSlow", //Vulva 
-  "MasturbateItem", //"PenetrateSlow", // Vulva
-  "Caress", //Penis 
-  "Caress", // "PenetrateSlow", //Clitoris
-  "Slap", ////Clitoris
-  "MasturbateItem", //Clitoris
-  "Caress",  //butt
-  "Spank", //butt
-  "PenetrateSlow" //butt
-]
+
+//s = [
+ // "Spank", "Tickle", "Caress", "Caress",
+//   "PenetrateSlow", //Vulva 
+//   "MasturbateItem", //"PenetrateSlow", // Vulva
+//   "Caress", //Penis 
+//   "Caress", // "PenetrateSlow", //Clitoris
+//   "Slap", ////Clitoris
+//   "MasturbateItem", //Clitoris
+//   "Caress",  //butt
+//   "Spank", //butt
+//   "PenetrateSlow" //butt
+// ]
 timeoutFactor = 30
 timeoutFactor = 5
 ChatRoomMessageAdditionDict["Inspection"] = function (SenderCharacter, msg, data) { ChatRoomMessageInspection(SenderCharacter, msg, data) }
