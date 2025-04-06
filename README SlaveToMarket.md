@@ -1,6 +1,9 @@
+# Slave to Market (SlaToMa)
+
 This is the legendary SlatoMa. It is a slave market.
 The currency are Starbucks.
 
+## Trader
 Trader Commands
 
 #status
@@ -10,7 +13,7 @@ Trader Commands
 
 
 
-
+## Visitor 
 Visitors Commands
 #sell <nickname>
 #present [all|<Nickname>] 
@@ -18,4 +21,10 @@ Visitors Commands
 #info
 #leave 
 
+## Slaves/Merchandise
 Slaves .... 
+
+
+The ranks
+
+merchandise - sold - slave - customer

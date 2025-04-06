@@ -3,7 +3,7 @@ gamekey = 1
 //SlatoMa
 RoomName = "SlaToMa"
 RoomDescription = "\"Slaves and Tools Market\" best offers in town. Read the bot profile for instructions!"
-RoomBackground = "Theater"
+RoomBackground = "CollegeTheater"
 
 
 //parameters
@@ -93,6 +93,16 @@ function newGame() {
             }
             return count
         },
+        merchandiseCount() {
+            count = 0
+            for (var R = 0; R < ChatRoomCharacter.length; R++) {
+                memberNumber = ChatRoomCharacter[R].MemberNumber
+                if (isMerchandise(memberNumber)) {
+                    count += 1
+                }
+            }
+            return count
+        },
         customerCount() {
             count = 0
             for (var R = 0; R < ChatRoomCharacter.length; R++) {
@@ -106,11 +116,16 @@ function newGame() {
     }
     CharacterSetActivePose(Player, "LegsClosed", true);
     ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
-    ServerSend("ChatRoomChat", { Content: "I am starting.", Type: "Chat" });
-    setTimeout(function (Player) { checkSlave() }, 20 * 1000)
+    setTimeout(function (Player) { checkSlave() }, 10 * 1000)
 }
 // Checker
 function isSlave(memberNumber) {
+    if (memberNumber in guestList && guestList[memberNumber].role == "slave")
+        return true
+    else
+        return false
+}
+function isMerchandise(memberNumber) {
     if (memberNumber in guestList && guestList[memberNumber].role == "merchandise")
         return true
     else
@@ -204,10 +219,10 @@ function checkMerchandise(sender) {
 
 function getTargetCharacter(dictonaryObject) {
     for (let D = 0; D < dictonaryObject.length; D++)
-      if (dictonaryObject[D].TargetCharacter != null)
-        return dictonaryObject[D].TargetCharacter;
+        if (dictonaryObject[D].TargetCharacter != null)
+            return dictonaryObject[D].TargetCharacter;
     return ""
-  }
+}
 //------------------- Command handler -------------------------------------
 
 function ChatRoomMassageTrade(sender, msg, data) {
@@ -233,7 +248,7 @@ function ChatRoomMassageTrade(sender, msg, data) {
 
         }
     }
-    
+
 
     if (data.Type != null && sender.MemberNumber != Player.MemberNumber) {
         if (data.Type == "Chat") {
@@ -255,7 +270,9 @@ function ChatRoomMassageTrade(sender, msg, data) {
         }
     }
     if ((data.Type != null && sender.MemberNumber == Player.MemberNumber)) {
+        if (msg.startsWith("#")) {
         TraderCommandHandler(sender, msg)
+        }
     }
     if (msg.includes("Orgasm") && sender.MemberNumber != Player.MemberNumber) {
         if (sender.MemberNumber in guestList) {
@@ -298,7 +315,8 @@ function TraderCommandHandler(sender, msg) {
             console.log("no one released: ")
     }
     if (msg.toLowerCase().includes("status")) {
-        mess = `*--------------------` + nl + ` merchandises : ` + game.slaveCount()
+        mess = `*--------------------` + nl + ` status : ` + game.status  + nl
+        mess = mess + `*--------------------` + nl + ` merchandise : ` + game.slaveCount()
         if (game.slaveCount() > 1)
             mess = mess + nl + ` value : ` + game.slaveValue()
         mess = mess + nl + ` customers : ` + game.customerCount()
@@ -307,14 +325,17 @@ function TraderCommandHandler(sender, msg) {
     }
 
     if (msg.toLowerCase().includes("open market")) {
+        game.status = "open"
+        ServerSend("ChatRoomChat", { Content: "I am starting.", Type: "Chat" });
         updateRoom(RoomName, RoomDescription, RoomBackground, false, false)
-
-
     }
     if (msg.toLowerCase().includes("close  market")) {
-
+        game.status = "closed"
+        ServerSend("ChatRoomChat", { Content: "Market is closing.", Type: "Chat" });
         updateRoom("Shelfwarmers", "Leftover items for special purpose", "", true, false)
-
+    }
+    if (msg.toLowerCase().includes("pause")) {
+        pause()
     }
 
 }
@@ -427,6 +448,7 @@ function commandHandler(sender, msg) {
         else
             mess = mess + nl + "Your have " + guestList[sender.MemberNumber].StarMoney + " Starbucks" + nl
         mess = mess + "Your punishment points : " + guestList[sender.MemberNumber].punishmentPoints + nl;
+        mess = mess + `*--------------------` + nl + ` status : ` + game.status  + nl
         mess = mess + "*--------------------"
         if (isSlave(sender.MemberNumber))
             mess = mess + nl + "There are " + game.customerCount() + " potential Buyers"
@@ -612,7 +634,7 @@ function pause() {
     game.status = "pause"
     CharacterSetActivePose(Player, "Knee", true);
     ServerSend("ChatRoomCharacterPoseUpdate", { Pose: Player.ActivePose });
-    ServerSend("ChatRoomChat", { Content: "I am starting.", Type: "Chat" });
+    ServerSend("ChatRoomChat", { Content: "time out", Type: "Chat" });
     ChatRoomCharacterUpdate(Player)
 }
 function checkRequirements(char) {
@@ -792,8 +814,8 @@ function prepareSlave4(sender, char, playerList, newSlaves) {
     InventoryWear(char, "CollarChainShort", "ItemNeckRestraints", "Default", 50)
     ServerSend("ChatRoomChat", { Content: " laughs about " + charname(char), Type: "Emote", });
     //move
-    var targetPos 
-    var sourcePos 
+    var targetPos
+    var sourcePos
     sourcePos = 0
     targetPos = 0
     slaveRow = true
@@ -1081,25 +1103,34 @@ function CheckSlavePunishment() {
     var emptyGuest = 0
     for (memberNumber in guestList) {
         if (guestList[memberNumber].beingPunished) {
-            emptyGuest++
             char = charFromMemberNumber(memberNumber)
-            ServerSend("ChatRoomChat", { Content: charname(char) + ": " + guestList[memberNumber].punishmentPoints + " punishmentPoints", Type: "Whisper", Target: char.MemberNumber })
-            spankCustomer(memberNumber)
-            guestList[memberNumber].punishmentPoints--
-            if (guestList[memberNumber].punishmentPoints <= 0) {
-                ServerSend("ChatRoomChat", { Content: "Your punishment for misbehaving is done", Type: "Whisper", Target: char.MemberNumber });
-                //InventoryGet(char, "ItemVulva").Property = { Mode: "Edge", Intensity: 2, Effect: ["Egged", "Vibrating"] }
-                guestList[memberNumber].beingPunished = false
-                if (isCustomer(char.MemberNumber)) {
-                    reapplyClothing(char, true)
+            if (char != null)
+                delete guestList[memberNumber]
+            else {
+                emptyGuest++
+                ServerSend("ChatRoomChat", { Content: charname(char) + ": " + guestList[memberNumber].punishmentPoints + " punishmentPoints", Type: "Whisper", Target: char.MemberNumber })
+                spankCustomer(memberNumber)
+                guestList[memberNumber].punishmentPoints--
+                if (guestList[memberNumber].punishmentPoints <= 0) {
+                    ServerSend("ChatRoomChat", { Content: "Your punishment for misbehaving is done", Type: "Whisper", Target: char.MemberNumber });
+                    //InventoryGet(char, "ItemVulva").Property = { Mode: "Edge", Intensity: 2, Effect: ["Egged", "Vibrating"] }
+                    guestList[memberNumber].beingPunished = false
+                    if (isCustomer(char.MemberNumber)) {
+                        reapplyClothing(char, true)
+                    }
                 }
+                break
             }
-            break
         }
+
         else {
             if (isSlave(memberNumber) && (guestList[memberNumber].punishmentPoints == -1)) {
                 emptyGuest++
                 char = charFromMemberNumber(memberNumber)
+                if (char == null)
+                {delete guestList[memberNumber]}
+                else
+                {
                 motivateCustomer(memberNumber)
                 //remove dildo
                 //restore binding
@@ -1119,6 +1150,7 @@ function CheckSlavePunishment() {
                 guestList[memberNumber].punishmentPoints = 0
                 ChatRoomCharacterUpdate(char)
                 break
+            }
             }
         }
     }

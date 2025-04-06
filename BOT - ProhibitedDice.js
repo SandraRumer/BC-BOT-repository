@@ -108,7 +108,7 @@ if (typeof watcherList === 'undefined') {
 }
 delinquent = []
 newGame()
-ServerSend("AccountUpdate", { Description: Player.Description });
+//ServerSend("AccountUpdate", { Description: Player.Description });
 ChatRoomCharacterUpdate(Player)
 
 
@@ -631,9 +631,9 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         InventoryWear(Player, "ArmbinderJacket", "ItemArms", [dressColor, "#0A0A0A", "Default"], 22)
         InventoryWear(Player, "KirugumiMask", "ItemHood", ["#9A7F76", "Default", "Default", dressColor], 25)
         InventoryGet(Player, "ItemHood").Property = { "Type": "e2m3b1br0op2ms0", "Difficulty": 15, "Effect": ["BlindHeavy", "Prone", "BlockMouth"], "Hide": ["Glasses", "ItemMouth", "ItemMouth2", "ItemMouth3", "Mask", "ItemHead"], "HideItem": ["ItemHeadSnorkel"] }
-        ServerSend("ChatRoomChat", { Content: "I am buggy, please punish me", Type: "Chat" });
+        ServerSend("", { Content: "I am buggy, please punish me", Type: "Chat" });
         ChatRoomCharacterUpdate(Player)
-
+ChatRoomChat
 
       }
 
