@@ -740,11 +740,11 @@ function prepareSlaves4selling(sender, playerList, newSlaves) {
                 if (canSell(sender, char)) {
                     guestList[char.MemberNumber].role = "merchandise"
                     enslave(char)
-                    ChatRoomCharacterUpdate(char);
-                    memorizeClothing(char)
                     ServerSend("ChatRoomChat", { Content: " waves to " + charname(char), Type: "Emote", });
+                    memorizeClothing(char)
+                    ChatRoomCharacterUpdate(char);
                     newSlaves += 1
-                    setTimeout(function (Player) { prepareSlave(sender, char, playerList, newSlaves) }, 8 * 1000)
+                              setTimeout(function (Player) { prepareSlave(sender, char, playerList, newSlaves) }, 8 * 1000)
                 } else {
                     guestList[sender.MemberNumber].punishmentPoints += 1
                     senderAnswer = "You failed to sell " + charname(char) + " to me. "
