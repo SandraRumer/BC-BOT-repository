@@ -1,5 +1,5 @@
 initDescription = Player.Description
-
+gamekey = 0
 RoomName = "Prohibited Dice"
 RoomDescription = "Here you can play prohibited and non consent dice games. Read the bot profile for instructions!"
 RoomBackground = "SecretChamber"
@@ -11,17 +11,13 @@ RoomBackground = "SecretChamber"
 
 // System - ATTENTION: subs will be chained upon entering and must play to leave.
 // -----------------------------------------------------------------------------
-
-
 minimumParticipants = 2
 //winTarget = 12
-requestDict = {}
 domWinReward = 3
 subToDom = 2
 enslavement = -3
 winningSteps = 8 //8
 watcherRelease = 10
-loserList = []
 // new line in chat - BEGIN
 nl = `
 `
@@ -30,11 +26,18 @@ nl = `
 
 Player.Description = `
 ....... automated ServiceBot model "Dice gambler" 0.9.0.1 .......
-      Dicing Game
-      ===========
-      Overview for COMMANDS: all commands starts with #
-      If you are gagged, you can use OOC (#. 
-      But be careful, it may be punished.
+  Dicing Game
+  ===========
+  
+  In this happening you can play a dicing game for victory or freedom. 
+  I am your Service Bot, the Dice Mistress .
+  DO NOT TOUCH ME!  NEVER EVER!
+                
+  Commands
+  ----------------------
+  Overview for COMMANDS: all commands starts with #
+  If you are gagged, you can use OOC (#. 
+  But be careful, it may be punished.
       
 #leave - you will be restrained with a timer padlock (5 mins) and kicked out of the room.
 #play - signal your will to play
@@ -45,58 +48,58 @@ Player.Description = `
      ----- dicing with the right dices  -------
 /dice 100 - the correct diceing command. 
 other dice - will be punished
-      =============================================
-      
-      Purpose
-      ----------------------
-      In this game we dicing for a winner. Winner is the player who remain untied in the end.
-      We need in minimum `  + minimumParticipants + ` player. I am the referee.
-      DO NOT TOUCH THE ServiceBot!  NEVER EVER!
-      
-      Preparation 
-      ----------------------
-      There are some checks required for becoming a player. 
-      If the requirements are not fulfilled, you can decide to watch the game. Choose #watch.
-      *WARNING - Watchers remains in their bonds, it is your choice.
-      You will be kicked out if you miss the requirements. Change your settings. You are welcome to come back.
-      There may be more restrained watchers and losers. 
-      Don't free them. 
-      First of all we need in minimum `  + minimumParticipants + ` player. 
-      Choose #play to signal that you want to play. This is only possible before the game is started. 
-      
-      Start Game
-      ----------------------
-      After all Player signaled to play, anyone can start to rumble: Request the start of game with command #start.
-      We play in rounds. 
-      Every player has exact one try to dice. Be aware that unfair behaviour is registered by the Servicebot.
-      Don't dice two times in one round!
-      The player with the lowest number looses the round. 
-      She will loose some clothing or get some restraints.
+  =============================================
+  
+  Purpose
+  ----------------------
+  In this game we dicing for a winner. Winner is the player who remain untied in the end.
+  We need in minimum `  + minimumParticipants + ` player. I am the referee.
+  DO NOT TOUCH THE ServiceBot!  NEVER EVER!
+  
+  Preparation 
+  ----------------------
+  There are some checks required for becoming a player. 
+  If the requirements are not fulfilled, you can decide to watch the game. Choose #watch.
+  *WARNING - Watchers remains in their bonds, it is your choice.
+  You will be kicked out if you miss the requirements. Change your settings. You are welcome to come back.
+  There may be more restrained watchers and losers. 
+  Don't free them. 
+  First of all we need in minimum `  + minimumParticipants + ` player. 
+  Choose #play to signal that you want to play. This is only possible before the game is started. 
+  
+  Start Game
+  ----------------------
+  After all Player signaled to play, anyone can start to rumble: Request the start of game with command #start.
+  We play in rounds. 
+  Every player has exact one try to dice. Be aware that unfair behaviour is registered by the Servicebot.
+  Don't dice two times in one round!
+  The player with the lowest number looses the round. 
+  She will loose some clothing or get some restraints.
 
-      Running  game 
-      ----------------------
-      During a game new customers can't participate. They have to wait until the bot is ready for the next game.
+  Running  game 
+  ----------------------
+  During a game new customers can't participate. They have to wait until the bot is ready for the next game.
 
-     Watching a game 
-     ----------------------
-     Watching could become boring. If you want to participate, you can dice (/dice 100). 
-     One lucky dice below `   + watcherRelease + ` and your watch ends. if not result will be noticed.
-     Next dice must be lower. 
+  Watching a game 
+  ----------------------
+  Watching could become boring. If you want to participate, you can dice (/dice 100). 
+  One lucky dice below `   + watcherRelease + ` and your watch ends. if not result will be noticed.
+  Next dice must be lower. 
 
-      Winning a game 
-      ----------------------
-      Last woman standing wins: The last player who is able to dice, wins the game. 
-      She earns a point. Loser looses a point. 
-      
-      Rewards 
-      --------------------------
-      On entry players reputation decides about your role. 
-      If you are a sub yototal  will be chained and you can't leave anymore.
-      After reaching `  + subToDom + ` total Points  you are promoted to dom level.
-      If you reach  ` + domWinReward + ` total Points in dom level, you get a reward. 
-      Losing too many times ... bad luck.
-      
-      Have fun.
+  Winning a game 
+  ----------------------
+  Last woman standing wins: The last player who is able to dice, wins the game. 
+  She earns a point. Loser looses a point. 
+  
+  Rewards 
+  --------------------------
+  On entry players reputation decides about your role. 
+  If you are a sub yototal  will be chained and you can't leave anymore.
+  After reaching `  + subToDom + ` total Points  you are promoted to dom level.
+  If you reach  ` + domWinReward + ` total Points in dom level, you get a reward. 
+  Losing too many times ... bad luck.
+  
+  Have fun.
 
 Fork-Code available here: 
 https://github.com/SandraRumer/BC-BOT-repository
@@ -106,9 +109,15 @@ Comment and suggestion thread on BC Discord: https://discord.com/channels/126416
 if (typeof watcherList === 'undefined') {
   resetWatcherList()
 }
+requestDict = {}
+loserList = []
 delinquent = []
+
+Player.Nickname = "Dice Wardress"
 newGame()
-//ServerSend("AccountUpdate", { Description: Player.Description });
+
+ServerSend("AccountUpdate", { Description: Player.Description });
+ServerSend("AccountUpdate", { Nickname: Player.Nickname }); 
 ChatRoomCharacterUpdate(Player)
 
 
@@ -609,6 +618,21 @@ function ChatRoomMessageDice(SenderCharacter, msg, data) {
         }
       }
 
+
+     if (msg.toLowerCase().includes("open room")) {
+        game.status = "off"
+        ServerSend("ChatRoomChat", { Content: "I am starting.", Type: "Chat" });
+        updateRoom(RoomName, RoomDescription, RoomBackground, false, false)
+    }
+    if (msg.toLowerCase().includes("close room")) {
+        game.status = "closed"
+        ServerSend("ChatRoomChat", { Content: "Contexśt is closing.", Type: "Chat" });
+        updateRoom("Shelfwarmers", "Leftover items for special purpose", "", true, false)
+    }
+    if (msg.toLowerCase().includes("pause")) {
+        pause()
+    }
+
       if (msg.toLowerCase().includes("buggy")) {
         //punish bot
         dressColor = ""
@@ -982,6 +1006,7 @@ function checkParticipant(char) {
             msg = msg + nl + "A Game is already running. Please wait until I am ready for a new game."
             // ServerSend("ChatRoomChat", { Content: "A Game is already running. Please wait until I am ready for a new game.", Type: "Whisper", Target: char.MemberNumber });
           }
+          //?? Bug :Msg could be null
           ServerSend("ChatRoomChat", { Content: msg, Type: "Whisper", Target: memberNumber });
           ChatRoomCharacterUpdate(char)
 

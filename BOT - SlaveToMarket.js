@@ -5,7 +5,6 @@ RoomName = "SlaToMa"
 RoomDescription = "\"Slaves and Tools Market\" best offers in town. Read the bot profile for instructions!"
 RoomBackground = "CollegeTheater"
 
-
 //parameters
 
 // new line in chat - BEGIN
@@ -43,16 +42,17 @@ Player.Description = `
         Fork-Code available here: 
         https://github.com/SandraRumer/BC-BOT-repository
         Comment and suggestion thread on BC Discord: https://discord.com/channels/1264166408888258621/1264166916839444554
-            ` + Player.Description // end of description
+            `  // end of description
 
 
 
 if (typeof guestList === 'undefined') {
     resetGuestList()
 }
-
+          Player.Nickname = "Veiled Wardress"
 newGame()
 ServerSend("AccountUpdate", { Description: Player.Description });
+ServerSend("AccountUpdate", { Nickname: Player.Nickname }); 
 ChatRoomCharacterUpdate(Player)
 
 ChatRoomMessageAdditionDict["EnterLeave"] = function (SenderCharacter, msg, data) { ChatRoomMessageEnterLeave(SenderCharacter, msg, data) }

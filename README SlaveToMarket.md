@@ -1,5 +1,5 @@
 # Slave to Market (SlaToMa)
-
+new shortage :SlvToMa
 This is the legendary SlatoMa. It is a slave market.
 The currency are Starbucks.
 

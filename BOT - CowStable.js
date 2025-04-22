@@ -20,7 +20,8 @@
                     
                         Purpose
                         ----------------------
-                        In this happening 
+                        In this happening You get the opportunity to act like a cow. 
+                        Here you can get milked. I am your Service Bot, the Farmer Mistress.
                         DO NOT TOUCH ME!  NEVER EVER!
                     
                         Commands
@@ -40,16 +41,17 @@
                     https://github.com/SandraRumer/BC-BOT-repository
                     Comment and suggestion thread on BC Discord: https://discord.com/channels/1264166408888258621/1264166916839444554
                     //
-                    //  ` + Player.Description 
+                    //  `
 
 
 
             if (typeof guestList === 'undefined') {
                 resetGuestList()
             }
-            Player.Nickname = "Cow Shepard"
+            Player.Nickname = "Cowgirl"
             newGame()
             ServerSend("AccountUpdate", { Description: Player.Description });
+            ServerSend("AccountUpdate", { Nickname: Player.Nickname }); 
             ChatRoomCharacterUpdate(Player)
 
             ChatRoomMessageAdditionDict["EnterLeave"] = function (SenderCharacter, msg, data) { ChatRoomMessageEnterLeave(SenderCharacter, msg, data) }
@@ -329,7 +331,7 @@
                 }
                 if (msg.toLowerCase().includes("close farm")) {
                     game.status = "closed"
-                    ServerSend("ChatRoomChat", { Content: "Market is closing.", Type: "Chat" });
+                    ServerSend("ChatRoomChat", { Content: "Farm is closing.", Type: "Chat" });
                     updateRoom("Shelfwarmers", "Leftover items for special purpose", "", true, false)
                 }
                 if (msg.toLowerCase().includes("pause")) {
@@ -440,6 +442,7 @@
                     //checkMerchandise(sender)
                     mess = "*--------------------" +
                         nl + "For Your Intrest, " + charname(sender) + `!`;
+                        //??? Uncaught (in promise) TypeError: guestList[sender.MemberNumber] is undefined
                     mess = mess + nl + "Your actual role is  " + guestList[sender.MemberNumber].role + `!`;
                     if (isCow(sender.MemberNumber))
                         mess = mess + nl + "Your are earning Starbucks" + nl
@@ -505,8 +508,8 @@
                     InventoryWear(Player, "HarnessPanelGag", "ItemMouth2", dressColor, 16)
                     InventoryWear(Player, "StitchedMuzzleGag", "ItemMouth3", dressColor, 15)
                     InventoryWear(Player, "ArmbinderJacket", "ItemArms", [dressColor, "#0A0A0A", "Default"], 22)
-                    InventoryWear(Player, "KirugumiMask", "ItemHood", ["#9A7F76", "Default", "Default", dressColor], 25)
-                    InventoryGet(Player, "ItemHood").Property = { "Type": "e2m3b1br0op2ms0", "Difficulty": 15, "Effect": ["BlindHeavy", "Prone", "BlockMouth"], "Hide": ["Glasses", "ItemMouth", "ItemMouth2", "ItemMouth3", "Mask", "ItemHead"], "HideItem": ["ItemHeadSnorkel"] }
+                    //InventoryWear(Player, "KirugumiMask", "ItemHood", ["#9A7F76", "Default", "Default", dressColor], 25)
+                    //InventoryGet(Player, "ItemHood").Property = { "Type": "e2m3b1br0op2ms0", "Difficulty": 15, "Effect": ["BlindHeavy", "Prone", "BlockMouth"], "Hide": ["Glasses", "ItemMouth", "ItemMouth2", "ItemMouth3", "Mask", "ItemHead"], "HideItem": ["ItemHeadSnorkel"] }
                     ChatRoomCharacterUpdate(Player);
                     ServerSend("ChatRoomChat", { Content: "I am buggy, please punish me", Type: "Chat" });
 

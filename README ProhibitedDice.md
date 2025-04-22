@@ -1,7 +1,7 @@
 # Prohibited Dice
-game in development.,
+Game in development.,
 
-A dicing game to get the reward.
+A dicing game to get the reward. The player are dicing and every round the  loser lose one item 
 
 ## Players
 
@@ -31,7 +31,6 @@ From dom to sub and in the end total loser.
 if something strange happens, an error occures or you are a chaot,  you can stop all games with command #buggy.
 With that command all Player are released. The bot is dollified as punishment.
 Bot is released with command #mercy
-
 
 
 ## Winner
@@ -70,4 +69,13 @@ Version information :
 * ...
 * 0.9.0.0 Release by Player and storing is added 
 * 0.9.0.1 Bugfixes
+
+reported  errors: 
+
+Starting : Profile getsnot updated, Room has to be open 
+Void : Communication isn't operating any more after bot gets caught by void. 
+
+
+missing functions
+Closing : CLose the game -
 
