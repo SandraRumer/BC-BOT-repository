@@ -18,7 +18,7 @@ Cow's Commands
 ## Spectator
 #milk <nickname>
 #present [all|<Nickname>] 
-
+#stop           
 #leave 
 
 
