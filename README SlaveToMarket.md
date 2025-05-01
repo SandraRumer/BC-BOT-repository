@@ -21,10 +21,16 @@ Visitors Commands
 #info
 #leave 
 
-## Slaves/Merchandise
-Slaves .... 
+## Merchandise
+
+Merchandise Objects are slaves for trade. 
+They are offered to the market and will be sold to a new owner.
+
+## Slaves/
+Slaves are unlucky beeings  They will be shown to the public for decorationg the room. All they can do is to suffer.
 
 
-The ranks
+## The ranks
 
 merchandise - sold - slave - customer
+

@@ -232,7 +232,7 @@ function ChatRoomMassageTrade(sender, msg, data) {
             target = getTargetCharacter(data.Dictionary)
             if (target == Player.MemberNumber) {
 
-                if (!sender.MemberNumber in guestList) {
+                if (!(sender.MemberNumber in guestList)) {
                     checkGuest(sender)
                 }
                 guestList[sender.MemberNumber].punishmentPoints++;
@@ -542,26 +542,26 @@ function checkGuests() {
     //Check if all Room Particiopants in List and if all List members are in Room 
     //??? to be defined
     actualList = []
+
     for (var D = 0; D < ChatRoomCharacter.length; D++) {
-        actualList.push(ChatRoomCharacter[D].MemberNumber)
+        actualList.push(memberNumber)
         if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber) {
-            if (!ChatRoomCharacter[D].MemberNumber in guestList) {
+            if (!(ChatRoomCharacter[D].MemberNumber in guestList)) {
                 personContent = getCharResult(ChatRoomCharacter[D].MemberNumber, gamekey)
                 charIsKnown = reconvertPers(personContent, ChatRoomCharacter[D])
                 checkGuest(ChatRoomCharacter[D])
-                checkCow(ChatRoomCharacter[D])
+                checkMerchandise(ChatRoomCharacter[D])
+            } else {
+                if (guestList[ChatRoomCharacter[D].MemberNumber] != null)
+                    if (guestList[ChatRoomCharacter[D].MemberNumber].role == "")
+                        guestList[ChatRoomCharacter[D].MemberNumber].role = "customer"
             }
 
         }
     }
     for (memberNumber in guestList) {
-        delete actualList[memberNumber]
-    }
-
-    while (actualList.length > 0)
-        memberNumber = actualList.shift()
-    if (!memberNumber in guestList) {
-        delete guestList[memberNumber]
+        if (!(memberNumber in actualList))
+            delete guestList[memberNumber]
     }
 }
 function extractNumberfromMessage(sender, msg) {
