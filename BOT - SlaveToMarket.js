@@ -222,7 +222,7 @@
             //ChatRoomCharacterUpdate(sender);
             guestList[sender.MemberNumber].Description = analyzeCharacter(sender)
             guestList[sender.MemberNumber].Price = calculatePrice(sender)
-            guestList[sender.MemberNumber].from = timestamp
+            guestList[sender.MemberNumber].from =  new Date()
         }
         function addVisitorToList(sender) {
             if (!(sender.MemberNumber in guestList)) {
@@ -340,10 +340,12 @@
             }
             if (msg.toLowerCase().includes("status")) {
                 mess = `*--------------------` + nl + ` status : ` + game.status + nl
-                mess = mess + `*--------------------` + nl + ` merchandise : ` + game.slaveCount()
+                mess = mess + `*--------------------` + nl + ` Slaves out of Stock: ` + game.slaveCount()
                 if (game.slaveCount() > 1)
                     mess = mess + nl + ` value : ` + game.slaveValue()
                 mess = mess + nl + ` Merchandise Objects  : ` + game.merchandiseCount()
+                if (game.merchandiseCount() > 1)
+                    mess = mess + nl + ` value : ` + game.merchandiseValue()
                 mess = mess + nl + ` customers : ` + game.customerCount()
                 mess = mess + nl + `--------------------` + nl
                 ServerSend("ChatRoomChat", { Content: mess, Type: "Emote", Target: Player.MemberNumber });
@@ -471,6 +473,12 @@
                 mess = "*--------------------" +
                     nl + "For Your Intrest, " + charname(sender) + `!`;
                 mess = mess + nl + "Your actual role is  " + guestList[sender.MemberNumber].role + `!`;
+                toDate = new Date()
+                fromDate = guestList[sender.MemberNumber].from
+                standingTime = (toDate - fromDate) / 60000
+                standingTime = Math.round(standingTime)
+                if  (standingTime != null)
+                mess = mess + nl + "You remin in that role since " + standingTime + ` minutes  !`;
                 if (isMerchandise(sender.MemberNumber) || isSlave(sender.MemberNumber))
                     mess = mess + nl + "Your market price is not your business " + nl
                 else
@@ -1073,6 +1081,7 @@
                 guestList[char.MemberNumber].punishmentPoints = personContent.punishmentPoints
                 guestList[char.MemberNumber].Price = personContent.Price
                 guestList[char.MemberNumber].StarMoney = personContent.StarMoney
+                guestList[char.MemberNumber].from = new (Date)
             }
             return true
         }
@@ -1156,7 +1165,7 @@
             for (memberNumber in guestList) {
                 if (guestList[memberNumber].beingPunished) {
                     char = charFromMemberNumber(memberNumber)
-                    if (char != null)
+                    if (char == null)
                         delete guestList[memberNumber]
                     else {
                         if (guestList[memberNumber].punishmentPoints <= 0) {
