@@ -1,4 +1,4 @@
-# Slave to Market (SlaToMa)
+# Slave to Market (SlvToMa)
 new shortage :SlvToMa
 This is the legendary SlatoMa. It is a slave market.
 The currency are Starbucks.
@@ -33,4 +33,17 @@ Slaves are unlucky beeings  They will be shown to the public for decorationg the
 ## The ranks
 
 merchandise - sold - slave - customer
+
+# Admin 
+## Versions 
+0.0.0.5  handles merchandising objects 
+
+
+## Bug List 
+
+user can sell even if enslaved 
+user can buy even if enslaved
+arousing status
+handling sold items 
+money management 
 
