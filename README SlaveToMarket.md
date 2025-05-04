@@ -19,6 +19,7 @@ Visitors Commands
 #present [all|<Nickname>] 
 #buy <nickname>
 #info
+#buggy ( and to release #mercy)
 #leave 
 
 ## Merchandise
@@ -37,6 +38,7 @@ merchandise - sold - slave - customer
 # Admin 
 ## Versions 
 0.0.0.5  handles merchandising objects 
+0.0.0.6  bugfix syntax error
 
 
 ## Bug List 
