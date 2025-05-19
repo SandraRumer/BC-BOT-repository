@@ -393,6 +393,8 @@ I am inspecting.
       //InventoryLock(sender, InventoryGet(sender, "ItemNeckRestraints"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
       //InventoryGet(sender, "ItemNeckRestraints").Property.CombinationNumber = customerList[sender.MemberNumber].lockCode
       removeClothes(ChatRoomCharacter[D], false, false)
+      CharacterSetActivePose(ChatRoomCharacter[D], "LegsClosed", true)
+    ServerSend("ChatRoomCharacterPoseUpdate", { Pose: ChatRoomCharacter[D].ActivePose });
       ServerSend("ChatRoomChat", { Content: "Preparing  " + charname(delinquent) + " for inspection ", Type: "Chat" });
       ChatRoomCharacterUpdate(delinquent)
       count++

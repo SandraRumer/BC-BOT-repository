@@ -362,6 +362,13 @@ function TraderCommandHandler(sender, msg) {
         if (!done)
             console.log("no one released: ")
     }
+    if (msg.toLowerCase().includes("enslave")) {
+    console.log("enslave  :" + sender.MemberNumber)
+    playerList = []
+    playerList = extractNumberfromMessage(sender, msg)
+    prepareSlaves4enslavement(sender, playerList, 0)
+
+    }
     if (msg.toLowerCase().includes("status")) {
         mess = `*--------------------` + nl + ` status : ` + game.status + nl
         mess = mess + `*--------------------` + nl + ` Slaves out of Stock: ` + game.slaveCount()
@@ -402,6 +409,14 @@ function commandHandler(sender, msg) {
         playerList = extractNumberfromMessage(sender, msg)
         prepareSlaves4selling(sender, playerList, 0)
     }
+    if (msg.toLowerCase().includes("enslave ")) {
+        console.log("enslave command from " + sender.MemberNumber)
+        checkGuest(sender)
+        playerList = extractNumberfromMessage(sender, msg)
+        prepareSlaves4enslavement(sender, playerList, 0)
+    }
+
+
     if (msg.includes("present")) {
         console.log("present")
         playerList = extractNumberfromMessage(sender, msg)
@@ -816,7 +831,7 @@ function prepareSlaves4selling(sender, playerList, newSlaves) {
                 else
                     answer = "Someone wants you to be sold. Up to now you was a " + sup + nl
                 if (canSell(sender, char)) {
-                    guestList[char.MemberNumber].role = "merchandise"
+                    //guestList[char.MemberNumber].role = "merchandise"
                     rolechange(char.MemberNumber, "merchandise")
                     enslave(char)
                     ServerSend("ChatRoomChat", { Content: " waves to " + charname(char), Type: "Emote", });
@@ -937,6 +952,160 @@ function prepareMerchandise4(sender, char, playerList, newSlaves) {
     saveCharResult(memberNumber, personContent, gamekey)
     setTimeout(function (Player) { prepareSlaves4selling(sender, playerList, newSlaves) }, 1000)
 }
+
+function prepareSlave(sender, char, playerList, newSlaves) {
+    removeClothes(char, false, false)
+    InventoryWear(char, "PantyStuffing", "ItemMouth", "#900000", 50)
+    InventoryWear(char, "HarnessBallGag1", "ItemMouth2", "#000000", 50)
+    //InventoryWear(char, "LeatherBreastBinder", "ItemBreast", "#000000", 50)
+    InventoryWear(char, "LeatherHarness", "ItemTorso", "#000000", 50)
+    InventoryWear(char, "SturdyLeatherBelts", "ItemLegs", "#000000", 50)
+    if (!char.IsOwned())
+        InventoryWear(char, "LeatherChoker", "ItemNeck", "#000000", 50)
+    InventoryWear(char, "LeatherBlindfold","ItemHead", "#000000",50)
+    //InventoryWear(char, "InteractiveVRHeadset", "ItemHead", "#000000", 50)
+    //InventoryLock(char, InventoryGet(char, "ItemHead"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
+    //InventoryGet(char, "ItemHead").Property.CombinationNumber = watcherList[char.MemberNumber].lockCode
+        ServerSend("ChatRoomChat", { Content: " happy about tying " + charname(char), Type: "Emote", });
+    ChatRoomCharacterUpdate(char);
+    setTimeout(function (Player) { prepareSlave2(sender, char, playerList, newSlaves) }, 8 * 1000)
+}
+function prepareSlave2(sender, char, playerList, newSlaves) {
+    removeClothes(char, true, false)
+    InventoryWear(char, "VibratingEgg", "ItemVulva", "Default")
+    InventoryWear(char, "SturdyLeatherBelts", "ItemFeet", "#000000", 50)
+    InventoryWear(char, "LeatherChastityBelt", "ItemPelvis", "#000000", 50)
+    ServerSend("ChatRoomChat", { Content: " loves humiliating slaves", Type: "Emote", });
+    ChatRoomCharacterUpdate(char);
+    setTimeout(function (Player) { prepareSlave3(sender, char, playerList, newSlaves) }, 8 * 1000)
+}
+
+function prepareSlave3(sender, char, playerList, newSlaves) {
+    if ((char != null) && (char.MemberNumber in guestList)) {
+        InventoryWear(char, "SturdyLeatherBelts", "ItemArms", ["#11161B", "#403E40", "#11161B", "#403E40", "#11161B", "#403E40"], 50)
+        InventoryLock(char, InventoryGet(char, "ItemArms"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
+        InventoryGet(char, "ItemArms").Property.CombinationNumber = guestList[char.MemberNumber].lockCode
+        InventoryWear(char, "LeatherMittens", "ItemHands", "202020", 50)
+        InventoryWear(char, "LeatherToeCuffs", "ItemBoots", "#000000", 50)
+        //CharacterSetActivePose(char, "Kneeling", true)
+        //ServerSend("ChatRoomCharacterPoseUpdate", { Pose: char.ActivePose });
+        ServerSend("ChatRoomChat", { Content: " looking for a kennel", Type: "Emote", });
+        ChatRoomCharacterUpdate(char);
+        setTimeout(function (Player) { prepareSlave4(sender, char, playerList, newSlaves) }, 8 * 1000)
+    }
+}
+function prepareSlave4(sender, char, playerList, newSlaves) {
+    InventoryWear(char, "CollarChainShort", "ItemNeckRestraints", "Default", 50)
+    InventoryWear(char, "Kennel", "ItemDevices", ( "#202020","#780E0E","#202020","#202020"), 50)
+    InventoryGet(char, "ItemDevices").Property = { "Type": "d1p1", "door": true, "Padding": true }
+    ServerSend("ChatRoomChat", { Content: " knock on the kennel and turn away from " + charname(char), Type: "Emote", });
+    //move
+    var targetPos
+    var sourcePos
+    sourcePos = 0
+    targetPos = 0
+    slaveRow = true
+    for (var D = 0; D < ChatRoomCharacter.length; D++) {
+
+        if (slaveRow && isSlave(ChatRoomCharacter[D].MemberNumber))
+            targetPos++
+        else {
+            slaveRow = false
+        }
+        if ((ChatRoomCharacter[D].MemberNumber) == char.MemberNumber)
+            sourcePos = D
+    }
+
+    if (sourcePos > targetPos) {
+        for (let i = 0; i < sourcePos - targetPos; i++) {
+            ServerSend("ChatRoomAdmin", {
+                MemberNumber: char.MemberNumber,
+                Action: "MoveLeft",
+                Publish: i === 0
+            });
+        }
+    }
+    ChatRoomCharacterViewMoveTarget = char.MemberNumber
+    if (ChatRoomCharacterViewMoveTarget !== Player.MemberNumber) {
+        ServerSend("ChatRoomAdmin", {
+            MemberNumber: Player.ID,
+            TargetMemberNumber: ChatRoomCharacterViewMoveTarget,
+            DestinationMemberNumber: Player.MemberNumber,
+            Action: "Move"
+        });
+        ChatRoomUpdateDisplay()
+    }
+    ChatRoomCharacterViewMoveTarget = null;
+    ChatRoomCharacterUpdate(char);
+    memberNumber = char.MemberNumber
+    personContent = convertPers(char)
+    saveCharResult(memberNumber, personContent, gamekey)
+    setTimeout(function (Player) { prepareSlaves4enslavement(sender, playerList, newSlaves) }, 1000)
+}
+
+function prepareSlaves4enslavement(sender, playerList, newSlaves) {
+    if (playerList.length > 0) {
+        delinquent = playerList.shift()
+        char = charFromMemberNumber(delinquent)
+        if (char == null) {
+            setTimeout(function (Player) { prepareSlaves4enslavement(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150, Player))
+            return
+        }
+        else {
+            warnmsg = checkRequirements(char)
+            if (warnmsg != "ok") {
+                console.log(charname(sender) + "Enslavement requirements failed")
+                ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: sender.MemberNumber });
+                ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: char.MemberNumber });
+                setTimeout(function (Player) { ChatRoomAdminChatAction("Kick", char.MemberNumber.toString()) }, 6 * 1000)
+                setTimeout(function (Player) { prepareSlaves4enslavement(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150, Player))
+            }
+            else {
+                addVisitorToList(char)
+                if (guestList[char.MemberNumber].role == "")
+                    sup = "unknown"
+                else
+                    sup = guestList[char.MemberNumber].role
+
+                if (delinquent == sender.MemberNumber)
+                    answer = "Up to now you was a " + sup + nl
+                else
+                    answer = "Someone wants you to be ensalved. Up to now you was a " + sup + nl
+                if (canSell(sender, char)) {
+                    rolechange(char.MemberNumber, "slave")
+                    enslave(char)
+                    ServerSend("ChatRoomChat", { Content: " turns to " + charname(char), Type: "Emote", });
+                    // memorizeClothing(char)
+                    ChatRoomCharacterUpdate(char);
+                    newSlaves += 1
+                    setTimeout(function (Player) { prepareSlave(sender, char, playerList, newSlaves) }, 8 * 1000)
+                } else {
+                    guestList[sender.MemberNumber].punishmentPoints += 1
+                    senderAnswer = "You failed to enslave " + charname(char) + "! "
+                    senderAnswer = senderAnswer + "You earned a punishment."
+                    sendAnswer(sender, senderAnswer)
+                }
+                sendAnswer(char, answer)
+            }
+        }
+    }
+    else {
+        if (newSlaves == 0) {
+            addVisitorToList(sender)
+            guestList[sender.MemberNumber].punishmentPoints += 1
+            answer = "I can't find candidates. Do you trick me ?" + nl
+            answer = answer + "You earned a punishment."
+            sendAnswer(sender, answer)
+        } else {
+            answer = newSlaves + ' candidate(s) are enslaved'
+            sendAnswer(sender, answer)
+        }
+    }
+
+
+}
+
+
 function releaseSlave(slaveObj) {
     memberNumber = slaveObj.MemberNumber
     if (memberNumber in guestList) {
@@ -1183,7 +1352,7 @@ function checkSlave() {
                     InventoryRemove(ChatRoomCharacter[D], "ItemNeckRestraints")
                     InventoryWear(ChatRoomCharacter[D], "CollarChainLong", "ItemNeckRestraints", "Default", 50)
                     InventoryWear(ChatRoomCharacter[D], "Ceiling Shackles", "ItemArms", ["#11161B", "#403E40", "#11161B", "#403E40", "#11161B", "#403E40"], 50)
-                    InventoryLock(char, InventoryGet(char, "ItemArms"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
+                    InventoryLock(ChatRoomCharacter[D], InventoryGet(char, "ItemArms"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
                     InventoryRemove(ChatRoomCharacter[D], "ItemHands")
                     //InventoryWear(char, "LeatherToeCuffs", "ItemBoots", "#000000", 50)
                     ChatRoomCharacterUpdate(ChatRoomCharacter[D])
@@ -1286,18 +1455,63 @@ function CheckRewardApplied() {
                 reapplyClothing(char, true)
             }
             if (isMerchandise(char.MemberNumber)) {
+                if ((game.merchandiseCount() > 1) && checkTime(char.MemberNumber))                
+                    { 
+                        merchandiseList = []
+                        console.log("shelfwarmer, time : " + timestamp(new Date()))
+                        rolechange(char.MemberNumber, "slave")
+                        ServerSend("ChatRoomChat", { Content: " stand behind " + charname(char), Type: "Emote", });
+                        newSlaves = 0
+                        merchandiseList.push(char.MemberNumber)
+                        setTimeout(function (Player) { prepareSlave(char, char, merchandiseList, newSlaves) }, 8 * 1000)
+                    
+                    }
+                else 
+                {
+                //backup update     
+                console.log("stays on shelf, time : " + timestamp(new Date()))
                 InventoryWear(char, "LeatherMittens", "ItemHands", "202020", 50)
+                InventoryWear(char, "SturdyLeatherBelts", "ItemArms", ["#11161B", "#403E40", "#11161B", "#403E40", "#11161B", "#403E40"], 50)
                 InventoryLock(char, InventoryGet(char, "ItemArms"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
                 InventoryGet(char, "ItemArms").Property.CombinationNumber = guestList[char.MemberNumber].lockCode
                 InventoryWear(char, "CollarChainShort", "ItemNeckRestraints", "Default", 50)
                 ChatRoomCharacterUpdate(char)
             }
+            }
             if (isSlave(char.MemberNumber)) {
-                //???                
+                if (checkTime(char.MemberNumber) || (game.merchandiseCount() == 0 ))                
+                {
+                    console.log("is presented on shelf, time : " + timestamp(new Date()))
+                    rolechange(char.MemberNumber, "merchandise")
+                    ServerSend("ChatRoomChat", { Content: " waves to " + charname(char), Type: "Emote", });
+                    newSlaves = 0
+                    merchandiseList = []
+                    merchandiseList.push(char.MemberNumber)
+                    setTimeout(function (Player) { prepareMerchandise(Player, char, merchandiseList, newSlaves) }, 8 * 1000)
+                }
+                else 
+                {
+                    console.log("remains as slave, time : " + timestamp(new Date()))
+            }
             }
 
         }
     }
+}
+function checkTime(memberNumber)
+{
+    actTime = new Date()
+    oldTime = guestList[memberNumber].from
+    let diff =  actTime - oldTime;
+    let difmin  = Math.floor(diff / 1000 / 60) % 60;
+    bolret = false
+    if (difmin > 20) 
+        {
+            bolret =  true
+        }
+
+
+    return bolret 
 }
 function CheckCustomer() {
     console.log("CheckCustomer, time : " + timestamp(new Date()))
