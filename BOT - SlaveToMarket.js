@@ -186,6 +186,7 @@ function enterLeaveEvent(sender, msg) {
         checkGuest(sender)
         checkMerchandise(sender)
         console.log(charname(sender) + " ENTERED")
+        
     }
 }
 function welcomeGreetings(sender) {
@@ -215,7 +216,7 @@ function checkGuest(sender) {
             sendAnswer(sender, answer)
         }
         if (isCustomer(sender.MemberNumber)) {
-            answer = "Feel free to buy a slave"
+            answer = "You are welcome, feel free to buy a slave"
             sendAnswer(sender, answer)
         }
         if (guestList[sender.MemberNumber].role == "")
@@ -373,6 +374,7 @@ function TraderCommandHandler(sender, msg) {
                         done = true
                     }
                 // else Player
+                ChatRoomCharacterUpdate(ChatRoomCharacter[D]);
             }
         }
         if (!done)
@@ -646,7 +648,6 @@ function extractNumberfromMessage(sender, msg) {
     const chars = msg.split(',');
     playerList = []
     all = false
-
     if (msg.toLowerCase().includes(" all")) {
         all = true
     }
@@ -658,10 +659,10 @@ function extractNumberfromMessage(sender, msg) {
                     playerList.push(memberNumber)
                 }
                 else
-                    console.log("Name not include")
+                    console.log(memberNumber + " Name not include")
                 if (charname(char) in chars)
                     console.log(true)
-                console.log("not Nickname in Message")
+                console.log(memberNumber +" not Nickname in Message")
             }
         }
     }
@@ -816,14 +817,17 @@ function canSell(sender, char) {
     return true
 }
 // sender : object of the one who requested the transaction 
-// PlaerList : array of memberNumbers of slaves to be sold 
+// PlaerList : array of memberNumbers of slaves to be sold # "
 // newSlaves  :
 function prepareSlaves4selling(sender, playerList, newSlaves) {
     if (playerList.length > 0) {
+        if (sender == null)
+        { console.log ( sender +  " - " + playerList +  " - "  + newSlaves)  
+        }
         delinquent = playerList.shift()
-        char = charFromMemberNumber(delinquent)
+        var char = charFromMemberNumber(delinquent)
         if (char == null) {
-            setTimeout(function (Player) { prepareSlaves4selling(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150, Player))
+            setTimeout(function (Player) { prepareSlaves4selling(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150))
             return
         }
         else {
@@ -833,7 +837,7 @@ function prepareSlaves4selling(sender, playerList, newSlaves) {
                 ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: sender.MemberNumber });
                 ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: char.MemberNumber });
                 setTimeout(function (Player) { ChatRoomAdminChatAction("Kick", char.MemberNumber.toString()) }, 6 * 1000)
-                setTimeout(function (Player) { prepareSlaves4selling(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150, Player))
+                setTimeout(function (Player) { prepareSlaves4selling(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150))
             }
             else {
                 addVisitorToList(char)
@@ -880,6 +884,11 @@ function prepareSlaves4selling(sender, playerList, newSlaves) {
 }
 
 function prepareMerchandise(sender, char, playerList, newSlaves) {
+    console.log ("prepareMerchandise")
+    console.log (sender)
+    console.log (char)
+    console.log (playerList)
+
     removeClothes(char, false, false)
     InventoryWear(char, "HarnessBallGag1", "ItemMouth2", "#000000", 50)
     //InventoryWear(char, "LeatherBreastBinder", "ItemBreast", "#000000", 50)
@@ -924,6 +933,7 @@ function prepareMerchandise4(sender, char, playerList, newSlaves) {
     InventoryWear(char, "LeatherMittens", "ItemHands", "202020", 50)
     //InventoryWear(char, "LeatherToeCuffs", "ItemBoots", "#000000", 50)
     InventoryWear(char, "CollarChainShort", "ItemNeckRestraints", "Default", 50)
+    ChatRoomCharacterUpdate(char);
     ServerSend("ChatRoomChat", { Content: " laughs about " + charname(char), Type: "Emote", });
     //move
     var targetPos
@@ -962,29 +972,32 @@ function prepareMerchandise4(sender, char, playerList, newSlaves) {
         ChatRoomUpdateDisplay()
     }
     ChatRoomCharacterViewMoveTarget = null;
-    ChatRoomCharacterUpdate(char);
     memberNumber = char.MemberNumber
     personContent = convertPers(char)
     saveCharResult(memberNumber, personContent, gamekey)
     setTimeout(function (Player) { prepareSlaves4selling(sender, playerList, newSlaves) }, 1000)
 }
 
-function prepareSlave(sender, char, playerList, newSlaves) {
-    removeClothes(char, false, false)
-    InventoryWear(char, "PantyStuffing", "ItemMouth", "#900000", 50)
-    InventoryWear(char, "HarnessBallGag1", "ItemMouth2", "#000000", 50)
-    //InventoryWear(char, "LeatherBreastBinder", "ItemBreast", "#000000", 50)
-    InventoryWear(char, "LeatherHarness", "ItemTorso", "#000000", 50)
-    InventoryWear(char, "SturdyLeatherBelts", "ItemLegs", "#000000", 50)
-    if (!char.IsOwned())
-        InventoryWear(char, "LeatherChoker", "ItemNeck", "#000000", 50)
-    InventoryWear(char, "LeatherBlindfold", "ItemHead", "#000000", 50)
-    //InventoryWear(char, "InteractiveVRHeadset", "ItemHead", "#000000", 50)
-    //InventoryLock(char, InventoryGet(char, "ItemHead"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
-    //InventoryGet(char, "ItemHead").Property.CombinationNumber = watcherList[char.MemberNumber].lockCode
-    ServerSend("ChatRoomChat", { Content: " happy about tying " + charname(char), Type: "Emote", });
-    ChatRoomCharacterUpdate(char);
-    setTimeout(function (Player) { prepareSlave2(sender, char, playerList, newSlaves) }, 8 * 1000)
+function prepareSlave(sender, charsl1, playerList, newSlaves) {
+    console.log ("prepareSlave")
+    console.log (sender)
+    console.log (charsl1)
+    console.log (playerList)
+    removeClothes(charsl1, false, false)
+    InventoryWear(charsl1, "PantyStuffing", "ItemMouth", "#900000", 50)
+    InventoryWear(charsl1, "HarnessBallGag1", "ItemMouth2", "#000000", 50)
+    //InventoryWear(charsl1, "LeatherBreastBinder", "ItemBreast", "#000000", 50)
+    InventoryWear(charsl1, "LeatherHarness", "ItemTorso", "#000000", 50)
+    InventoryWear(charsl1, "SturdyLeatherBelts", "ItemLegs", "#000000", 50)
+    if (!charsl1.IsOwned())
+        InventoryWear(charsl1, "LeatherChoker", "ItemNeck", "#000000", 50)
+    InventoryWear(charsl1, "LeatherBlindfold", "ItemHead", "#000000", 50)
+    //InventoryWear(charsl1, "InteractiveVRHeadset", "ItemHead", "#000000", 50)
+    //InventoryLock(charsl1, InventoryGet(charsl1, "ItemHead"), { Asset: AssetGet("Female3DCG", "ItemMisc", "CombinationPadlock") }, Player.MemberNumber)
+    //InventoryGet(charsl1, "ItemHead").Property.CombinationNumber = watcherList[charsl1.MemberNumber].lockCode
+    ServerSend("ChatRoomChat", { Content: " happy about tying " + charname(charsl1), Type: "Emote", });
+    ChatRoomCharacterUpdate(charsl1);
+    setTimeout(function (Player) { prepareSlave2(sender, charsl1, playerList, newSlaves) }, 8 * 1000)
 }
 function prepareSlave2(sender, char, playerList, newSlaves) {
     removeClothes(char, true, false)
@@ -1062,9 +1075,9 @@ function prepareSlave4(sender, char, playerList, newSlaves) {
 function prepareSlaves4enslavement(sender, playerList, newSlaves) {
     if (playerList.length > 0) {
         delinquent = playerList.shift()
-        char = charFromMemberNumber(delinquent)
+        var char = charFromMemberNumber(delinquent)
         if (char == null) {
-            setTimeout(function (Player) { prepareSlaves4enslavement(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150, Player))
+            setTimeout(function (Player) { prepareSlaves4enslavement(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150))
             return
         }
         else {
@@ -1074,7 +1087,7 @@ function prepareSlaves4enslavement(sender, playerList, newSlaves) {
                 ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: sender.MemberNumber });
                 ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: char.MemberNumber });
                 setTimeout(function (Player) { ChatRoomAdminChatAction("Kick", char.MemberNumber.toString()) }, 6 * 1000)
-                setTimeout(function (Player) { prepareSlaves4enslavement(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150, Player))
+                setTimeout(function (Player) { prepareSlaves4enslavement(sender, playerList, newSlaves) }, Math.floor(Math.random() * 2000 + 150))
             }
             else {
                 addVisitorToList(char)
@@ -1094,7 +1107,7 @@ function prepareSlaves4enslavement(sender, playerList, newSlaves) {
                     // memorizeClothing(char)
                     ChatRoomCharacterUpdate(char);
                     newSlaves += 1
-                    setTimeout(function (Player) { prepareSlave(sender, char, playerList, newSlaves) }, 8 * 1000)
+                    setTimeout(function (sender) { prepareSlave(sender, char, playerList, newSlaves) }, 8 * 1000)
                 } else {
                     guestList[sender.MemberNumber].punishmentPoints += 1
                     senderAnswer = "You failed to enslave " + charname(char) + "! "
@@ -1107,11 +1120,13 @@ function prepareSlaves4enslavement(sender, playerList, newSlaves) {
     }
     else {
         if (newSlaves == 0) {
+            if (sender != null) {
             addVisitorToList(sender)
             guestList[sender.MemberNumber].punishmentPoints += 1
             answer = "I can't find candidates. Do you trick me ?" + nl
             answer = answer + "You earned a punishment."
             sendAnswer(sender, answer)
+            }
         } else {
             answer = newSlaves + ' candidate(s) are enslaved'
             sendAnswer(sender, answer)
@@ -1478,7 +1493,6 @@ function checkSellingStatus() {
         if (!(memberNumber == Player.MemberNumber) && (checkTime(memberNumber) || game.merchandiseCount() < 2))
             {checkGuestList.push(memberNumber)
             console.log(memberNumber)
-
             }
     }
     console.log(checkGuestList )
@@ -1492,7 +1506,7 @@ function checkSellingSingleStatus(checkGuestList) {
     console.log("checkSingleStatus: " + actdelinquent)
     if (char == null) {
         delete guestList[actdelinquent]
-        console.log(actdelinquent + "deleted from guestList")
+        console.log(actdelinquent + " deleted from guestList")
     }
     else {
         if (isMerchandise(actdelinquent)) {
@@ -1533,7 +1547,7 @@ function checkSellingSingleStatus(checkGuestList) {
                 }
             }
         }
-
+    }
         if (checkGuestList.length > 0)
             checkSellingSingleStatus(checkGuestList)
         else {
@@ -1541,7 +1555,6 @@ function checkSellingSingleStatus(checkGuestList) {
             //start offering ?? 
             setTimeout(function (Player) { setTimeout(function (Player) { CheckCustomer() }, Math.floor(Math.random() * 7500 + 50000)) })
         }
-    }
 }
 
 function checkTime(memberNumber) {
