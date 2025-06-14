@@ -42,19 +42,38 @@ merchandise - sold - slave - customer
 0.0.0.5  handles merchandising objects 
 0.0.0.6  bugfix syntax error
 0.0.0.7  introducing slaves
+0.0.0.8  bugfix for handling merchidising items
 
 
 ## Bug List 
 
-user can sell even if enslaved 
-user can buy even if enslaved
+user can sell even if enslaved  fixed
+user can buy even if enslaved fixed
 arousing status
-handling sold items 
+handling sold items  
 money management 
 
 Bug 1 
-if sold resalling slave doesn't handle clothes in a proper way
+if sold reselling slave doesn't handle clothes in a proper way
 
 bug 2
 
 Invalid addition of "ItemNeck/SlaveCollar" on character nia (172794) by member number 167042 blocked (buying nia )
+
+bug 3 
+sell name (Caption riting)
+
+bug 4 
+commands by slaves and merchandising objects 
+
+feature 1 
+orgasm handling
+
+feature 2
+reward system 
+
+feature 3
+improve presentation 
+
+feature 4
+deportation 
