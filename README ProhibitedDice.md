@@ -1,17 +1,21 @@
 # Prohibited Dice
-Game in development.,
+Game in development...
+Development base ist  R118 for Bondage club.
 
-A dicing game to get the reward. The player are dicing and every round the  loser lose one item 
+
+A dicing game to get the reward. The player are dicing and every round the  loser lose one item.
 
 ## Players
 
 #users commands
 
+* leave
 * info
 * play
-* start 
-* leave
+* start
 * watch 
+* reward
+
 
 user can register using  #play
 user can request start  #start
@@ -31,7 +35,6 @@ From dom to sub and in the end total loser.
 if something strange happens, an error occures or you are a chaot,  you can stop all games with command #buggy.
 With that command all Player are released. The bot is dollified as punishment.
 Bot is released with command #mercy
-
 
 ## Winner
 
@@ -60,6 +63,14 @@ Losers are lost. Be curious whatr happens to them.
 * restart
 * release (all|Name of Target)
 * heal
+  experimantal command to rescue a game which is disturbed by unexpected user behaviour 
+* inspect   (all|Name of Target)
+   no working  function  fm  prepareInspection is missing
+* open room  
+  starts the dicing game. Participants could join the gaim with "play"
+* close room 
+  bot os tired and closes the game. Unlucky times
+* pause
 
 
 Version information : 
@@ -69,13 +80,34 @@ Version information :
 * ...
 * 0.9.0.0 Release by Player and storing is added 
 * 0.9.0.1 Bugfixes
+* 0.9.1.0 improved code with KI Improvments
 
 reported  errors: 
 
-Starting : Profile getsnot updated, Room has to be open 
+Starting : Profile gets not updated, Room has to be open. 
 Void : Communication isn't operating any more after bot gets caught by void. 
 
 
 missing functions
-Closing : CLose the game -
+Closing : Close the game -
 
+
+Line 1847 uncought error () 
+function convert Pers 
+if Sender Character  /// is null
+
+
++  Player vanishes during game 
++  erster Watcher moved stimmt nicht ? 
+
+
+
+- prepare inspection not defines
+pause not defined 
+
+
+Message: ReferenceError: domWinReward is not defined
+Source: debugger eval code:1850:80
+checkWinners@debugger eval code:1850:80
+
+REset Outerclothe

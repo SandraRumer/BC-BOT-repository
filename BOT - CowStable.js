@@ -445,7 +445,7 @@ function commandHandler(sender, msg) {
     }
     if (msg.toLowerCase().includes("info")) {
         console.log("info : " + msg + sender.MemberNumber)
-        //checkMerchandise(sender)
+        checkCow(sender)
         mess = "*--------------------" +
             nl + "For Your Intrest, " + charname(sender) + `!`;
         //??? Uncaught (in promise) TypeError: guestList[sender.MemberNumber] is undefined
@@ -544,13 +544,13 @@ function checkGuests() {
     actualList = []
 
     for (var D = 0; D < ChatRoomCharacter.length; D++) {
-        actualList.push(memberNumber)
+        actualList.push(ChatRoomCharacter[D].memberNumber)
         if (ChatRoomCharacter[D].MemberNumber != Player.MemberNumber) {
             if (!(ChatRoomCharacter[D].MemberNumber in guestList)) {
                 personContent = getCharResult(ChatRoomCharacter[D].MemberNumber, gamekey)
                 charIsKnown = reconvertPers(personContent, ChatRoomCharacter[D])
                 checkGuest(ChatRoomCharacter[D])
-                checkMerchandise(ChatRoomCharacter[D])
+                checkCow(ChatRoomCharacter[D])
             } else {
                 if (guestList[ChatRoomCharacter[D].MemberNumber] != null)
                     if (guestList[ChatRoomCharacter[D].MemberNumber].role == "")
@@ -834,7 +834,7 @@ function prepareCow(sender, char, playerList, newCows) {
 
     //?? Not Working                
     InventoryWear(char, "JewelrySet", "Jewelry", dressColor)
-    InventoryGet(ChatRoomCharacter[0], "Jewelry").Property ={ "Type": "e0a0f0n1"   }
+    InventoryGet(char, "Jewelry").Property ={ "Type": "e0a0f0n1"   }
     InventoryWear(char, "BodyWrititngs", "ClothAccessory", "Default")
     //???
     //     InventoryGet(char, "BodyWrititngs").Property = { TypeRecord: { p: 7, s: 2, t: 1 }, Text: "MilkCOW"}
