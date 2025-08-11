@@ -181,6 +181,7 @@ function removeRestrains(char){
 
 function removeClothes(char, removeUnderwear = true, removeCosplay = false){
   target = getCharacterObject(char)
+    InventoryRemove(target, "ClothOuter")
 	InventoryRemove(target,"Cloth")
 	InventoryRemove(target,"ClothLower")
 	InventoryRemove(target,"ClothAccessory")
@@ -658,6 +659,9 @@ class personStorageData {
 	//	dice = 0
 	//	round = 0
 	punishmentPoints = 0
+		Price = 0 
+		Description = ''
+		StarMoney  = 0 
   }
   
 
@@ -675,7 +679,9 @@ function getCharResult(memberNumber) {
   return (content)
 
 }
-function genLocalStorageKey(memberNumber) {
-  key = "PDPR" + Player.MemberNumber + "-" + memberNumber //Prohibited dice Player Result
-  return key
-}
+function genLocalStorageKey(memberNumber, gamekey) {
+		prekey = gameList[gamekey] 
+		if (prekey  == "") prekey = gameList[0]
+	key = prekey + Player.MemberNumber + "-" + memberNumber //Prohibited dice Player Result
+	return key
+	}
