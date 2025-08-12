@@ -80,8 +80,9 @@ Version information :
 * ...
 * 0.9.0.0 Release by Player and storing is added 
 * 0.9.0.1 Bugfixes
-* 0.9.1.0 improved code with KI Improvments
-* 0.9.1.1 bugfix of code with KI Improvments
+* 0.9.1.0 improved code with KI Improvments 
+* 0.9.1.1 bugfix of code with KI Improvments (public beta test, crashed)
+* 0.9.1.2 further bugfix
 
 reported  errors: 
 

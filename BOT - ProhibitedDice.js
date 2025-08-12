@@ -1587,10 +1587,8 @@ function rewardPhase4() {
   ServerSend("ChatRoomChat", { Content: "*[Give " + customerList[game.rewardTarget].name + " 3 orgasms]", Type: "Emote" });
 }
 
-
 function checkSub(sender) {
   // Check auf Sub and handle her 
-
   if (sender.MemberNumber in customerList)
     if (customerList[sender.MemberNumber].role == "sub") {
       // the "halsband"
@@ -1610,10 +1608,9 @@ function checkSub(sender) {
     if (customerList[sender.MemberNumber].role == "dom") 
     { //remove chain 
       InventoryRemove(target, "ItemNeckRestraints")
-      InventoryRemove(target, "ItemNeckRestraints")
+      InventoryRemove(target, "ItemNeck")
     }
 }
-
 
 function winningCeremony(winnerNumber) {
   ServerSend("ChatRoomChat", { Content: "*Winner gets released ", Type: "Chat" });
