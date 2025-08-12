@@ -81,33 +81,22 @@ Version information :
 * 0.9.0.0 Release by Player and storing is added 
 * 0.9.0.1 Bugfixes
 * 0.9.1.0 improved code with KI Improvments
+* 0.9.1.1 bugfix of code with KI Improvments
 
 reported  errors: 
 
 Starting : Profile gets not updated, Room has to be open. 
 Void : Communication isn't operating any more after bot gets caught by void. 
++  Player vanishes during game by void  
++  first Watcher moved not correct ?  
+
++ prepare inspection not defined
++ pause not defined 
 
 
-missing functions
-Closing : Close the game -
+Devtest : 
++ calling maids
++ Dom  leaving room 
 
-
-Line 1847 uncought error () 
-function convert Pers 
-if Sender Character  /// is null
-
-
-+  Player vanishes during game 
-+  erster Watcher moved stimmt nicht ? 
-
-
-
-- prepare inspection not defines
-pause not defined 
-
-
-Message: ReferenceError: domWinReward is not defined
 Source: debugger eval code:1850:80
 checkWinners@debugger eval code:1850:80
-
-REset Outerclothe

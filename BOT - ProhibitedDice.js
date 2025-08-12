@@ -25,11 +25,11 @@ let loserList = [];
 let oldDescription = Player.Description // For improvment Profile handling 
 // Player bot configuration
 Player.Description = `
-    ....... automated ServiceBot model "Dice gambler" 0.9.0.1 .......
+    ....... automated ServiceBot model "Dice gambler" 0.9.1.1 .......
       Dicing Game
       ===========
       
-      In this happening you can play a dicing game for victory or freedom. 
+      In this happening you can play a dicing game for victory or freedom.
       I am your Service Bot, the Dice Mistress .
       DO NOT TOUCH ME!  NEVER EVER!
                     
@@ -1607,6 +1607,11 @@ function checkSub(sender) {
       InventoryGet(sender, "ItemNeckRestraints").Property.CombinationNumber = customerList[sender.MemberNumber].lockCode
       ChatRoomCharacterUpdate(sender)
     }
+    if (customerList[sender.MemberNumber].role == "dom") 
+    { //remove chain 
+      InventoryRemove(target, "ItemNeckRestraints")
+      InventoryRemove(target, "ItemNeckRestraints")
+    }
 }
 
 
@@ -1661,14 +1666,14 @@ function punishmentAll() {
   if (countps == 0) {
     ServerSend("ChatRoomChat", { Content: "Good girls, no punishment needed!", Type: "Chat" });
     game.status = "winners"
-    setTimeout(function (Player) { checkWinners() }, Math.floor(Math.random() * 3000 + 5000, Player))
+    setTimeout(function (Player) { checkWinners() }, Math.floor(Math.random() * 3000 + 5000))
   }
   else {
     ServerSend("ChatRoomChat", { Content: "It is punishment time!", Type: "Emote" });
     InventoryWear(Player, "HeartCrop", "ItemHandheld", "#CCF6B7")
     //punishment crop
     ChatRoomCharacterUpdate(Player)
-    setTimeout(function (Player) { choosePunishment() }, Math.floor(Math.random() * 6000 + 5000, Player))
+    setTimeout(function (Player) { choosePunishment() }, Math.floor(Math.random() * 6000 + 5000))
   }
 }
 
@@ -1806,11 +1811,12 @@ function checkWinners() {
         customerList[ChatRoomCharacter[D].MemberNumber].role = "dom"
         customerList[ChatRoomCharacter[D].MemberNumber].totalPointsGained = 0
         customerList[ChatRoomCharacter[D].MemberNumber].winNum = 0
+        checkSub(ChatRoomCharacter[D])
         loserReward = true
       }
     } else {
       if (customerList[ChatRoomCharacter[D].MemberNumber].totalPointsGained >= DOM_WIN_REWARD) {
-        ServerSend("ChatRoomChat", { Content: "Congratulations " + charname(ChatRoomCharacter[D]) + "! You got " + domWinReward + " wins. You have earned the rights to a special reward! When you want to get your reward just use the command '#reward'.", Type: "Chat" });
+        ServerSend("ChatRoomChat", { Content: "Congratulations " + charname(ChatRoomCharacter[D]) + "! You got " + DOM_WIN_REWARD  + " wins. You have earned the rights to a special reward! When you want to get your reward just use the command '#reward'.", Type: "Chat" });
         loserReward = true
       }
       if ((customerList[ChatRoomCharacter[D].MemberNumber].role == "dom") && (customerList[ChatRoomCharacter[D].MemberNumber].totalPointsGained <= (SUB_TO_DOM_POINTS * -1))) {
@@ -1909,6 +1915,7 @@ function releaseCustomer(memberNumber) {
 
 
 function convertPers(SenderCharacter) {
+  memberNumber = SenderCharacter.MemberNumber
   per = new (personStorageData)
   per.watcher = false
   if (memberNumber in watcherList) {
@@ -1932,7 +1939,7 @@ function convertPers(SenderCharacter) {
 //Restore saved data 
 function reconvertPers(personContent, char) {
   //personContent = convertPers (watcherList[memberNumber])
-  if (personContent == null)
+  if (personContent == null || char == null)
     return false
   if (personContent.watcher) {
     newWatcher(char)
