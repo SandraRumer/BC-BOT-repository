@@ -989,6 +989,7 @@ function kickOutOrWatch(warnmsg, sender) {
   ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Whisper", Target: sender.MemberNumber });
   ServerSend("ChatRoomChat", { Content: "*[You can become a quite watcher. You can whisper #watch, Otherwise you will be kicked in 30 seconds. You can change and come back if you want.]", Type: "Emote", Target: sender.MemberNumber });
   setTimeout(function (sender) { checkKickOut(sender) }, 30 * 1000, sender)
+  setTimeout(function (Player) { checkKickOut(sender)}, 30 * 1000, Player)
 }
 
 function enterLeaveEvent(sender, msg) {
@@ -1021,56 +1022,164 @@ function checkRequirements(char) {
   return warnmsg
 }
 
+// function checkParticipant(char) {
+//   warnmsg = checkRequirements(char)
+//   if (warnmsg != "ok")
+//     kickOutOrWatch(warnmsg, char)
+//   else {
+//     memberNumber = char.MemberNumber
+//     if (Player.MemberNumber != memberNumber)
+//       if (memberNumber in watcherList) {
+//         prepareWatcher(char)
+//       } else
+//         if (memberNumber in customerList) {
+//           checkSub(char)
+//         }
+//         else {
+//           //load from local space
+//           personContent = getCharResult(memberNumber)
+//           charIsKnown = reconvertPers(personContent, char)
+//           if (!charIsKnown) {
+//             if (isExposed(char) || char.IsRestrained() || CharacterIsInUnderwear(char) || char.IsShackled() || char.IsBlind() || !char.CanTalk() || char.IsEnclose() || char.IsMounted() || char.IsDeaf()) {
+//               warnmsg = "*[To play here you have to be UNRESTRAINED and fully DRESSED (check your panties too). You will be kicked in 30 seconds. You can change and comeback if you want.]"
+//               kickOutOrWatch(warnmsg, char)
+//               //if (isExposed(char) || char.IsRestrained() || CharacterIsInUnderwear(char) || char.IsShackled() || char.IsBlind() || !char.CanTalk() || char.IsEnclose() || char.IsMounted() || char.IsDeaf()) {
+//               //  warnmsg = "*[you are not worth to play, you have to watch]"
+//               //  newWatcher(char)
+//               //  ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Emote", Target: char.MemberNumber });
+//             } else {
+//               //realy new Customer
+//               newCustomer(char)
+//               msg = "*[RULES: Check " + charname(Player) + " BIO to see all the rules and commands. Have fun.]"
+//               customerList[char.MemberNumber].linkedTo = 0
+//               customerList[char.MemberNumber].isPlayer = false
+//             }
+//           }
+//           else {
+//             msg = charname(char) + ", welcome back!"
+//             msg = msg + NL + "[Remember: Check " + charname(Player) + " BIO. Have fun.]"
+//             checkSub(char)
+
+//           }
+//           if (game.status != "off" && game.status != "end" && game.status != "playerSelection") {
+//             msg = msg + NL + "A Game is already running. Please wait until I am ready for a new game."
+//             // ServerSend("ChatRoomChat", { Content: "A Game is already running. Please wait until I am ready for a new game.", Type: "Whisper", Target: char.MemberNumber });
+//           }
+//           //?? Bug :Msg could be null
+//           ServerSend("ChatRoomChat", { Content: msg, Type: "Whisper", Target: memberNumber });
+//           ChatRoomCharacterUpdate(char)
+
+//         }
+//   }
+// }
+
+
+/**
+ * Checks a character's eligibility to participate and handles their status accordingly.
+ * @param {Character} char The character object to check.
+ */
 function checkParticipant(char) {
-  warnmsg = checkRequirements(char)
-  if (warnmsg != "ok")
-    kickOutOrWatch(warnmsg, char)
-  else {
-    memberNumber = char.MemberNumber
-    if (Player.MemberNumber != memberNumber)
-      if (memberNumber in watcherList) {
-        prepareWatcher(char)
-      } else
-        if (memberNumber in customerList) {
-          checkSub(char)
-        }
-        else {
-          //load from local space
-          personContent = getCharResult(memberNumber)
-          charIsKnown = reconvertPers(personContent, char)
-          if (!charIsKnown) {
-            if (isExposed(char) || char.IsRestrained() || CharacterIsInUnderwear(char) || char.IsShackled() || char.IsBlind() || !char.CanTalk() || char.IsEnclose() || char.IsMounted() || char.IsDeaf()) {
-              warnmsg = "*[To play here you have to be UNRESTRAINED and fully DRESSED (check your panties too). You will be kicked in 30 seconds. You can change and comeback if you want.]"
-              kickOutOrWatch(warnmsg, char)
-              //if (isExposed(char) || char.IsRestrained() || CharacterIsInUnderwear(char) || char.IsShackled() || char.IsBlind() || !char.CanTalk() || char.IsEnclose() || char.IsMounted() || char.IsDeaf()) {
-              //  warnmsg = "*[you are not worth to play, you have to watch]"
-              //  newWatcher(char)
-              //  ServerSend("ChatRoomChat", { Content: warnmsg, Type: "Emote", Target: char.MemberNumber });
-            } else {
-              //realy new Customer
-              newCustomer(char)
-              msg = "*[RULES: Check " + charname(Player) + " BIO to see all the rules and commands. Have fun.]"
-              customerList[char.MemberNumber].linkedTo = 0
-              customerList[char.MemberNumber].isPlayer = false
-            }
-          }
-          else {
-            msg = charname(char) + ", welcome back!"
-            msg = msg + NL + "[Remember: Check " + charname(Player) + " BIO. Have fun.]"
-            checkSub(char)
-
-          }
-          if (game.status != "off" && game.status != "end" && game.status != "playerSelection") {
-            msg = msg + NL + "A Game is already running. Please wait until I am ready for a new game."
-            // ServerSend("ChatRoomChat", { Content: "A Game is already running. Please wait until I am ready for a new game.", Type: "Whisper", Target: char.MemberNumber });
-          }
-          //?? Bug :Msg could be null
-          ServerSend("ChatRoomChat", { Content: msg, Type: "Whisper", Target: memberNumber });
-          ChatRoomCharacterUpdate(char)
-
-        }
+  const warnmsg = checkRequirements(char);
+  if (warnmsg !== "ok") {
+    kickOutOrWatch(warnmsg, char);
+    return;
   }
+
+  const memberNumber = char.MemberNumber;
+  if (Player.MemberNumber === memberNumber) {
+    // Current player, no action needed.
+    return;
+  }
+
+  // Handle known users first to simplify the main logic
+  if (memberNumber in watcherList) {
+    prepareWatcher(char);
+    return;
+  }
+
+  if (memberNumber in customerList) {
+    handleKnownCustomer(char);
+    return;
+  }
+
+  // Handle new or unknown users
+  const personContent = getCharResult(memberNumber);
+  const charIsKnown = reconvertPers(personContent, char);
+
+  if (charIsKnown) {
+    handleKnownCustomer(char);
+    return;
+  }
+
+  handleNewCustomer(char);
 }
+
+/**
+ * Handles a returning or new customer.
+ * @param {Character} char The character object.
+ */
+function handleKnownCustomer(char) {
+  let msg = `${charname(char)}, welcome back!`;
+  msg += `\n[Remember: Check ${charname(Player)} BIO. Have fun.]`;
+
+  checkSub(char);
+  sendInitialMessages(char, msg);
+}
+
+/**
+ * Handles a completely new participant.
+ * @param {Character} char The character object.
+ */
+function handleNewCustomer(char) {
+    const warnmsg = checkRequirements(char);
+  if (warnmsg !== "ok") {
+   const warnmsg = `*[To play here you have to be UNRESTRAINED and fully DRESSED (check your panties too). You will be kicked in 30 seconds. You can change and comeback if you want.]`;
+    kickOutOrWatch(warnmsg, char);
+    return;
+  }
+
+  // Really new customer
+  newCustomer(char);
+  /* customerList[char.MemberNumber] = {
+    ...customerList[char.MemberNumber],
+    linkedTo: 0,
+    isPlayer: false
+  };*/
+
+  let msg = `*[RULES: Check ${charname(Player)} BIO to see all the rules and commands. Have fun.]`;
+  sendInitialMessages(char, msg);
+}
+
+/**
+ * Checks if a character is unfit to play based on specific conditions.
+ * @param {Character} char The character object.
+ * @returns {boolean} True if the character is unfit, otherwise false.
+ */
+function isUnfitToPlay(char) {
+  return isExposed(char) || char.IsRestrained() || CharacterIsInUnderwear(char) ||
+         char.IsShackled() || char.IsBlind() || !char.CanTalk() ||
+         char.IsEnclose() || char.IsMounted() || char.IsDeaf();
+}
+
+/**
+ * Sends initial welcome and status messages to a character.
+ * @param {Character} char The character object.
+ * @param {string} initialMsg The initial message to send.
+ */
+function sendInitialMessages(char, initialMsg) {
+  const memberNumber = char.MemberNumber;
+  let finalMsg = initialMsg;
+
+  if (game.status !== "off" && game.status !== "end" && game.status !== "playerSelection") {
+    finalMsg += `\nA Game is already running. Please wait until I am ready for a new game.`;
+  }
+
+  ServerSend("ChatRoomChat", { Content: finalMsg, Type: "Whisper", Target: memberNumber });
+  ChatRoomCharacterUpdate(char);
+}
+
+
+
 
 
 function stackPay(targetMemberNumber, chipsLost) {
@@ -1607,8 +1716,8 @@ function checkSub(sender) {
     }
     if (customerList[sender.MemberNumber].role == "dom") 
     { //remove chain 
-      InventoryRemove(target, "ItemNeckRestraints")
-      InventoryRemove(target, "ItemNeck")
+      InventoryRemove(sender, "ItemNeckRestraints")
+      InventoryRemove(sender, "ItemNeck")
     }
 }
 
